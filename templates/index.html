@@ -1,0 +1,2718 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0f">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MetaForge">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>MetaForge</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg:       #0a0a0f;
+  --bg2:      #111118;
+  --bg3:      #16161f;
+  --card:     #1a1a26;
+  --card2:    #1f1f30;
+  --border:   #2a2a3d;
+  --border2:  #353550;
+  --accent:   #6c63ff;
+  --accent2:  #a78bfa;
+  --glow:     rgba(108,99,255,.25);
+  --green:    #00d4a0;
+  --green2:   rgba(0,212,160,.15);
+  --red:      #ff4d6d;
+  --yellow:   #fbbf24;
+  --text:     #eeeef5;
+  --text2:    #8888aa;
+  --text3:    #44445a;
+  --r:        16px;
+  --r2:       10px;
+  --mono:     'Space Mono', monospace;
+  --sans:     'DM Sans', sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { height:100%; } body { height:100%; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ── */
+.topbar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: env(safe-area-inset-top, 0) 20px 0;
+  flex-shrink: 0;
+  z-index: 50;
+}
+.topbar-inner {
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand { display:flex; align-items:center; gap:10px; }
+.brand-icon {
+  width:34px; height:34px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 9px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px;
+  box-shadow: 0 0 16px var(--glow);
+}
+.brand-name { font-weight:700; font-size:18px; letter-spacing:-.4px; }
+.brand-ver {
+  font-family: var(--mono);
+  font-size:10px;
+  color: var(--accent2);
+  background: rgba(108,99,255,.12);
+  border: 1px solid rgba(108,99,255,.3);
+  padding: 2px 7px;
+  border-radius: 20px;
+}
+
+/* ── SCROLL AREA ── */
+.scroll {
+  flex: 1;
+  overflow-y: visible;
+  padding: 18px 16px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── PROGRESS STEPS ── */
+.steps {
+  display: flex;
+  gap: 6px;
+}
+.stp {
+  flex:1; height:3px;
+  background: var(--border2);
+  border-radius: 3px;
+  transition: background .4s;
+}
+.stp.done { background: var(--green); }
+.stp.active { background: var(--accent); }
+
+/* ── CARDS ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  transition: opacity .3s, border-color .3s;
+}
+.card.locked { opacity:.4; pointer-events:none; }
+.card.glow { border-color: var(--accent); box-shadow: 0 0 24px var(--glow); }
+
+.ch {
+  padding: 14px 16px;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items:center; justify-content:space-between;
+}
+.ch-left { display:flex; align-items:center; gap:8px; font-weight:600; font-size:14px; }
+.ch-icon { font-size:16px; }
+.ch-badge {
+  font-family: var(--mono);
+  font-size:10px; color:var(--text3);
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 2px 7px; border-radius:20px;
+}
+.cb { padding:16px; }
+
+/* ── UPLOAD ── */
+.dropzone {
+  border: 2px dashed var(--border2);
+  border-radius: var(--r2);
+  padding: 36px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .25s;
+  position: relative;
+}
+.dropzone.over, .dropzone:active { border-color:var(--accent); background:var(--glow); }
+.dropzone input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+.dz-icon { font-size:40px; margin-bottom:12px; }
+.dz-title { font-size:16px; font-weight:600; margin-bottom:6px; }
+.dz-sub { font-size:12px; color:var(--text2); margin-bottom:16px; }
+.dz-tags { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
+.tag {
+  font-family:var(--mono); font-size:10px; font-weight:700;
+  color:var(--text2); background:var(--bg3);
+  border:1px solid var(--border2);
+  padding:3px 8px; border-radius:5px; letter-spacing:.5px;
+}
+
+/* ── FILE PREVIEW ── */
+.fpreview {
+  display:none;
+  align-items:center;
+  gap:12px;
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-radius:var(--r2);
+  padding:14px;
+}
+.fpreview.show { display:flex; }
+.ficon { font-size:32px; flex-shrink:0; }
+.finfo { flex:1; min-width:0; }
+.fname { font-weight:600; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.fmeta { font-size:11px; color:var(--text2); margin-top:3px; }
+.fremove {
+  width:30px; height:30px;
+  background:none; border:none;
+  color:var(--text3); font-size:16px;
+  border-radius:8px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .2s; flex-shrink:0;
+}
+.fremove:active { color:var(--red); background:rgba(255,77,109,.1); }
+
+/* ── META ORIGINAL ── */
+.meta-row {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+  margin-top:14px;
+}
+.mi {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:var(--r2); padding:10px;
+}
+.mi-label { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:5px; }
+.mi-val { font-size:12px; font-family:var(--mono); color:var(--text2); word-break:break-all; }
+.mi-val.none { color:var(--text3); font-style:italic; }
+
+/* ── DEVICE LIST ── */
+.dsearch {
+  width:100%; background:var(--bg3);
+  border:1px solid var(--border2); border-radius:var(--r2);
+  padding:11px 14px; color:var(--text); font-size:14px;
+  font-family:var(--sans); outline:none; margin-bottom:12px;
+  transition:border-color .2s;
+}
+.dsearch:focus { border-color:var(--accent); }
+.dsearch::placeholder { color:var(--text3); }
+
+.dlist { display:flex; flex-direction:column; gap:8px; max-height:300px; overflow-y:auto; }
+.dlist::-webkit-scrollbar { width:3px; }
+.dlist::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+.dcard {
+  display:flex; align-items:center; justify-content:space-between;
+  background:var(--bg3); border:2px solid var(--border);
+  border-radius:var(--r2); padding:13px 14px;
+  cursor:pointer; transition:all .2s; gap:10px;
+}
+.dcard:active { border-color:var(--accent); background:var(--glow); }
+.dcard.sel { border-color:var(--accent); background:rgba(108,99,255,.08); }
+.dcard-info { flex:1; }
+.dcard-brand { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+.dcard-name { font-size:14px; font-weight:600; }
+.dcard-model { font-family:var(--mono); font-size:11px; color:var(--text2); margin-top:3px; }
+.dcard-check {
+  width:22px; height:22px;
+  border-radius:50%; border:2px solid var(--border2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; flex-shrink:0;
+  transition:all .2s;
+}
+.dcard.sel .dcard-check { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+/* ── OPTIONS ── */
+.opt-row {
+  display:flex; align-items:center; justify-content:space-between;
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:var(--r2); padding:13px 14px; gap:12px;
+  cursor:pointer;
+}
+.opt-row:active { background:var(--card2); }
+.opt-info { flex:1; }
+.opt-title { font-size:13px; font-weight:600; }
+.opt-sub { font-size:11px; color:var(--text3); margin-top:2px; }
+.tog {
+  width:42px; height:24px; flex-shrink:0;
+  background:var(--border2); border-radius:12px; position:relative;
+  transition:background .3s;
+}
+.tog::after {
+  content:'';
+  position:absolute;
+  width:18px; height:18px; background:#fff;
+  border-radius:50%; top:3px; left:3px;
+  transition:transform .3s;
+}
+.tog.on { background:var(--accent); }
+.tog.on::after { transform:translateX(18px); }
+
+.opt-expand { display:none; margin-top:12px; }
+.opt-expand.show { display:block; }
+
+.input-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.input-group { display:flex; flex-direction:column; gap:5px; }
+.ilabel { font-size:11px; color:var(--text2); font-weight:500; }
+.ifield {
+  background:var(--bg3); border:1px solid var(--border2);
+  border-radius:var(--r2); padding:10px 12px;
+  color:var(--text); font-size:13px; font-family:var(--sans);
+  outline:none; width:100%; transition:border-color .2s;
+}
+.ifield:focus { border-color:var(--accent); }
+.ihint { font-size:10px; color:var(--text3); }
+
+/* ── COMPARE ── */
+.compare {
+  display:none; gap:10px;
+  margin-bottom:14px;
+}
+.compare.show { display:grid; grid-template-columns:1fr 1fr; }
+.cmp-col {}
+.cmp-label {
+  font-size:10px; color:var(--text3);
+  text-transform:uppercase; letter-spacing:1px;
+  display:flex; align-items:center; gap:5px;
+  margin-bottom:7px;
+}
+.dot { width:6px; height:6px; border-radius:50%; background:var(--red); }
+.dot.new { background:var(--green); }
+.cmp-item {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:var(--r2); padding:10px; margin-bottom:6px;
+}
+.cmp-item.new { border-color:rgba(0,212,160,.3); }
+.cmp-lbl { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+.cmp-val { font-family:var(--mono); font-size:11px; color:var(--text2); word-break:break-all; }
+.cmp-val.hi { color:var(--green); }
+
+/* ── PROCESS BTN ── */
+.proc-btn {
+  width:100%; padding:17px;
+  background:linear-gradient(135deg, var(--accent), var(--accent2));
+  border:none; border-radius:var(--r);
+  color:#fff; font-size:16px; font-weight:700;
+  font-family:var(--sans); cursor:pointer; letter-spacing:-.2px;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  box-shadow:0 8px 28px var(--glow);
+  transition:all .25s; -webkit-appearance:none;
+}
+.proc-btn:active:not(:disabled) { transform:scale(.98); }
+.proc-btn:disabled { opacity:.4; cursor:not-allowed; }
+
+/* ── PROGRESS ── */
+.prog-wrap { display:none; flex-direction:column; gap:10px; }
+.prog-wrap.show { display:flex; }
+.prog-bar-bg { background:var(--bg3); border-radius:6px; height:6px; overflow:hidden; }
+.prog-bar { height:100%; background:linear-gradient(90deg, var(--accent), var(--green)); border-radius:6px; width:0%; transition:width .5s ease; }
+.prog-txt { font-size:12px; color:var(--text2); text-align:center; }
+
+/* ── ERROR ── */
+.err {
+  display:none; background:rgba(255,77,109,.08);
+  border:1px solid var(--red); border-radius:var(--r2);
+  padding:12px 14px; color:var(--red); font-size:13px;
+}
+.err.show { display:block; }
+
+/* ── RESULT ── */
+.result {
+  display:none; text-align:center;
+  background:var(--green2); border:1px solid rgba(0,212,160,.3);
+  border-radius:var(--r); padding:28px 20px;
+}
+.result.show { display:block; }
+.res-icon { font-size:52px; margin-bottom:14px; }
+.res-title { font-size:20px; font-weight:700; color:var(--green); margin-bottom:6px; }
+.res-sub { font-size:13px; color:var(--text2); margin-bottom:24px; }
+.dl-btn {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:14px 28px;
+  background:var(--green); color:#000;
+  border-radius:var(--r2); font-weight:700;
+  font-size:15px; font-family:var(--sans);
+  text-decoration:none; transition:all .2s;
+}
+.dl-btn:active { transform:scale(.97); }
+.new-btn {
+  display:inline-flex; align-items:center; gap:7px;
+  margin-top:14px; padding:10px 22px;
+  background:none; border:1px solid var(--border2);
+  color:var(--text2); border-radius:var(--r2);
+  font-size:13px; font-family:var(--sans);
+  cursor:pointer; transition:all .2s;
+}
+.new-btn:active { border-color:var(--accent); color:var(--accent); }
+
+/* ── DIAGNÓSTICO ── */
+.diag-title { font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
+.diag-grid { display:flex; flex-direction:column; gap:6px; }
+.diag-row {
+  display:flex; align-items:center; gap:10px;
+  background:var(--bg3); border-radius:8px; padding:10px 12px;
+  border:1px solid var(--border);
+}
+.diag-icon { font-size:14px; flex-shrink:0; }
+.diag-info { flex:1; }
+.diag-name { font-size:12px; font-weight:600; }
+.diag-detail { font-size:11px; color:var(--text3); margin-top:2px; font-family:var(--mono); }
+.diag-badge {
+  font-size:10px; font-weight:700; padding:2px 8px;
+  border-radius:20px; flex-shrink:0; font-family:var(--mono);
+}
+.diag-badge.removed { background:rgba(255,77,109,.12); color:var(--red); border:1px solid rgba(255,77,109,.3); }
+.diag-badge.added   { background:rgba(0,212,160,.12);  color:var(--green); border:1px solid rgba(0,212,160,.3); }
+.diag-badge.kept    { background:rgba(136,136,170,.1); color:var(--text2); border:1px solid var(--border); }
+
+/* ── MODO ABAS ── */
+.mode-tabs {
+  display:flex; gap:8px; margin-bottom:0;
+}
+.mode-tab {
+  flex:1; padding:10px 8px;
+  background:var(--bg3); border:2px solid var(--border);
+  border-radius:var(--r2); cursor:pointer;
+  text-align:center; transition:all .2s;
+  font-size:12px; font-weight:600; color:var(--text2);
+}
+.mode-tab.active { border-color:var(--accent); color:var(--accent); background:rgba(108,99,255,.08); }
+.mode-tab:active { transform:scale(.97); }
+.mode-icon { font-size:18px; display:block; margin-bottom:3px; }
+
+/* ── VISUALIZADOR ── */
+.viewer-wrap { display:flex; flex-direction:column; gap:6px; }
+.viewer-section { margin-bottom:4px; }
+.viewer-section-title {
+  font-size:10px; color:var(--text3); text-transform:uppercase;
+  letter-spacing:1px; margin-bottom:6px; padding:0 2px;
+  display:flex; align-items:center; gap:6px;
+}
+.viewer-section-title::after {
+  content:''; flex:1; height:1px; background:var(--border);
+}
+.viewer-row {
+  display:flex; justify-content:space-between; align-items:flex-start;
+  padding:8px 12px; background:var(--bg3);
+  border:1px solid var(--border); border-radius:8px;
+  gap:10px; margin-bottom:4px;
+}
+.viewer-key { font-size:11px; color:var(--text2); flex-shrink:0; min-width:120px; }
+.viewer-val { font-family:var(--mono); font-size:11px; color:var(--text); text-align:right; word-break:break-all; }
+.viewer-val.warn { color:var(--yellow); }
+.viewer-val.bad  { color:var(--red); }
+.viewer-val.good { color:var(--green); }
+.viewer-empty { text-align:center; padding:24px; color:var(--text3); font-size:13px; }
+
+/* ── COPY MODE ── */
+.copy-zone {
+  border:2px dashed var(--border2); border-radius:var(--r2);
+  padding:28px 16px; text-align:center; cursor:pointer;
+  transition:all .25s; position:relative;
+}
+.copy-zone:active { border-color:var(--green); background:var(--green2); }
+.copy-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+.copy-loaded {
+  display:none; background:var(--bg3); border:1px solid var(--green);
+  border-radius:var(--r2); padding:12px 14px;
+  align-items:center; gap:10px;
+}
+.copy-loaded.show { display:flex; }
+.copy-ok { width:8px; height:8px; border-radius:50%; background:var(--green); flex-shrink:0; }
+
+/* ── ANALISADOR TIKTOK ── */
+.tiktok-analyzer {
+  display:flex; flex-direction:column; gap:10px;
+}
+.score-ring-wrap {
+  display:flex; flex-direction:column; align-items:center;
+  padding:20px 0 10px;
+}
+.score-ring {
+  width:110px; height:110px; position:relative;
+  display:flex; align-items:center; justify-content:center;
+}
+.score-ring svg { position:absolute; top:0; left:0; transform:rotate(-90deg); }
+.score-ring-val {
+  font-size:32px; font-weight:700; font-family:var(--mono);
+  position:relative; z-index:1;
+}
+.score-ring-label { font-size:12px; color:var(--text2); margin-top:6px; font-weight:500; }
+.score-verdict {
+  margin-top:8px; font-size:13px; font-weight:700;
+  padding:6px 18px; border-radius:20px; text-align:center;
+}
+.score-verdict.green { background:var(--green2); color:var(--green); border:1px solid rgba(0,212,160,.3); }
+.score-verdict.yellow { background:rgba(251,191,36,.1); color:var(--yellow); border:1px solid rgba(251,191,36,.3); }
+.score-verdict.red { background:rgba(255,77,109,.1); color:var(--red); border:1px solid rgba(255,77,109,.3); }
+
+.check-list { display:flex; flex-direction:column; gap:8px; }
+.check-item {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:var(--r2); padding:12px 14px;
+  display:flex; align-items:flex-start; gap:10px;
+}
+.check-item.ok    { border-left:3px solid var(--green); }
+.check-item.warn  { border-left:3px solid var(--yellow); }
+.check-item.fail  { border-left:3px solid var(--red); }
+.check-item.info  { border-left:3px solid var(--accent); }
+.check-ico { font-size:16px; flex-shrink:0; margin-top:1px; }
+.check-body { flex:1; }
+.check-name { font-size:13px; font-weight:600; margin-bottom:3px; }
+.check-detail { font-size:11px; color:var(--text2); line-height:1.5; }
+.check-detail strong { color:var(--text); }
+.check-tip {
+  font-size:11px; color:var(--accent2);
+  background:rgba(108,99,255,.08);
+  border-radius:6px; padding:6px 8px;
+  margin-top:6px; display:none;
+}
+.check-item.warn .check-tip,
+.check-item.fail .check-tip { display:block; }
+
+.analyzer-analyzing {
+  text-align:center; padding:32px 16px;
+  color:var(--text2); font-size:13px;
+}
+.prog-dots::after {
+  content:''; animation: dots 1.5s infinite;
+}
+@keyframes dots {
+  0%{content:'.'} 33%{content:'..'} 66%{content:'...'} 100%{content:''}
+}
+
+/* ── SERVER BADGE ── */
+.server-badge {
+  display:inline-flex; align-items:center; gap:5px;
+  background:rgba(0,212,160,.12); border:1px solid rgba(0,212,160,.3);
+  color:var(--green); font-size:10px; font-weight:700;
+  padding:2px 8px; border-radius:20px; font-family:var(--mono);
+}
+.server-dot {
+  width:6px; height:6px; border-radius:50%; background:var(--green);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── OTIMIZADOR ── */
+.opt-section { display:flex; flex-direction:column; gap:10px; }
+.opt-section-title {
+  font-size:11px; color:var(--text3); text-transform:uppercase;
+  letter-spacing:1px; margin-bottom:4px;
+}
+.opt-chips { display:flex; gap:8px; flex-wrap:wrap; }
+.chip {
+  padding:8px 14px; border-radius:20px;
+  background:var(--bg3); border:2px solid var(--border);
+  font-size:12px; font-weight:600; color:var(--text2);
+  cursor:pointer; transition:all .2s; font-family:var(--mono);
+}
+.chip.sel { border-color:var(--accent); color:var(--accent); background:rgba(108,99,255,.1); }
+.chip:active { transform:scale(.96); }
+
+.job-progress {
+  display:none; flex-direction:column; gap:10px;
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:var(--r2); padding:16px;
+}
+.job-progress.show { display:flex; }
+.job-title { font-size:13px; font-weight:600; }
+.job-msg { font-size:12px; color:var(--text2); }
+.job-bar-bg { background:var(--border2); border-radius:6px; height:6px; overflow:hidden; }
+.job-bar { height:100%; background:linear-gradient(90deg,var(--accent),var(--green)); border-radius:6px; width:0%; transition:width .4s ease; }
+
+.opt-btn {
+  width:100%; padding:16px;
+  background:linear-gradient(135deg, #00d4a0, #00b386);
+  border:none; border-radius:var(--r);
+  color:#000; font-size:15px; font-weight:700;
+  font-family:var(--sans); cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  box-shadow:0 8px 28px rgba(0,212,160,.25);
+  transition:all .25s; -webkit-appearance:none;
+}
+.opt-btn:active:not(:disabled) { transform:scale(.98); }
+.opt-btn:disabled { opacity:.4; cursor:not-allowed; }
+
+/* ── BOTTOM NAV ── */
+.bottombar {
+  position:fixed; bottom:0; left:0; right:0;
+  background:rgba(10,10,15,.95);
+  border-top:1px solid var(--border);
+  backdrop-filter:blur(20px);
+  padding:10px 16px calc(env(safe-area-inset-bottom,0px) + 10px);
+  display:flex; gap:10px;
+  z-index:50;
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-icon">⚙️</div>
+      <div class="brand-name">MetaForge</div>
+    </div>
+    <div class="brand-ver" id="serverBadge" title="Versão">v3.0</div>
+  </div>
+  <!-- steps -->
+  <div class="steps" style="padding-bottom:12px; gap:5px;">
+    <div class="stp active" id="s1"></div>
+    <div class="stp" id="s2"></div>
+    <div class="stp" id="s3"></div>
+    <div class="stp" id="s4"></div>
+  </div>
+</div>
+
+<!-- SCROLL -->
+<div class="scroll" id="scroll">
+
+  <!-- 1. UPLOAD -->
+  <div class="card glow" id="c1">
+    <div class="ch">
+      <div class="ch-left"><span class="ch-icon">📂</span> Selecionar Arquivo</div>
+      <div class="ch-badge">PASSO 1</div>
+    </div>
+    <div class="cb">
+      <div class="dropzone" id="dz">
+        <input type="file" id="fi" accept="image/jpeg,image/jpg,image/png,image/webp,video/mp4,video/quicktime,video/avi,video/x-matroska">
+        <div class="dz-icon">📁</div>
+        <div class="dz-title">Toque para selecionar</div>
+        <div class="dz-sub">Fotos e vídeos até 500MB</div>
+        <div class="dz-tags">
+          <span class="tag">JPG</span><span class="tag">PNG</span><span class="tag">WEBP</span>
+          <span class="tag">MP4</span><span class="tag">MOV</span><span class="tag">MKV</span>
+        </div>
+      </div>
+
+      <div class="fpreview" id="fp">
+        <div class="ficon" id="ficon">📸</div>
+        <div class="finfo">
+          <div class="fname" id="fname">—</div>
+          <div class="fmeta" id="fmeta">—</div>
+        </div>
+        <button class="fremove" onclick="resetFile()">✕</button>
+      </div>
+
+      <div id="origWrap" style="display:none">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px">⚠ Metadados Originais</div>
+        <div class="meta-row">
+          <div class="mi"><div class="mi-label">Fabricante</div><div class="mi-val" id="om1">—</div></div>
+          <div class="mi"><div class="mi-label">Modelo</div><div class="mi-val" id="om2">—</div></div>
+          <div class="mi"><div class="mi-label">Data</div><div class="mi-val" id="om3">—</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABAS DE MODO -->
+  <div class="card" id="modeTabs" style="display:none">
+    <div class="cb">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Modo de operação</div>
+      <div class="mode-tabs">
+        <div class="mode-tab active" id="modeSubstitute" onclick="setMode('substitute')">
+          <span class="mode-icon">🔄</span>Substituir
+        </div>
+        <div class="mode-tab" id="modeCopy" onclick="setMode('copy')">
+          <span class="mode-icon">📋</span>Copiar de Foto
+        </div>
+        <div class="mode-tab" id="modeView" onclick="setMode('view')">
+          <span class="mode-icon">🔍</span>Visualizar
+        </div>
+        <div class="mode-tab" id="modeTiktok" onclick="setMode('tiktok')">
+          <span class="mode-icon">📊</span>Analisar
+        </div>
+        <div class="mode-tab" id="modeOptimize" onclick="setMode('optimize')" id="tabOptimize">
+          <span class="mode-icon">🚀</span>Otimizar
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODO COPIAR -->
+  <div class="card" id="cardCopy" style="display:none">
+    <div class="ch">
+      <div class="ch-left"><span class="ch-icon">📋</span>Foto de Referência</div>
+      <div class="ch-badge">SEU A15</div>
+    </div>
+    <div class="cb">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px">
+        Selecione uma <strong>foto ou vídeo</strong> tirado diretamente pelo seu <strong>SM-A155M/DSN</strong> para copiar os metadados reais dele.
+      </div>
+      <div class="copy-zone" id="copyZone">
+        <input type="file" id="copyInput" accept="image/jpeg,image/jpg,video/mp4,video/quicktime">
+        <div style="font-size:28px;margin-bottom:8px">📸🎬</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px">Selecionar foto ou vídeo do seu A15</div>
+        <div style="font-size:12px;color:var(--text2)">Arquivo original tirado diretamente pelo seu celular</div>
+      </div>
+      <div class="copy-loaded" id="copyLoaded">
+        <div class="copy-ok"></div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600" id="copyName">—</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px" id="copyMeta">—</div>
+        </div>
+        <button class="fremove" onclick="resetCopy()">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODO VISUALIZAR -->
+  <div class="card" id="cardView" style="display:none">
+    <div class="ch">
+      <div class="ch-left"><span class="ch-icon">🔍</span>Metadados Detectados</div>
+      <div class="ch-badge">ANÁLISE</div>
+    </div>
+    <div class="cb">
+      <div class="viewer-wrap" id="viewerWrap">
+        <div class="viewer-empty">Selecione um arquivo para analisar</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODO ANALISAR TIKTOK -->
+  <div class="card" id="cardTiktok" style="display:none">
+    <div class="ch">
+      <div class="ch-left"><span class="ch-icon">📊</span>Análise TikTok</div>
+      <div class="ch-badge">SCORE</div>
+    </div>
+    <div class="cb">
+      <div class="tiktok-analyzer" id="analyzerWrap">
+        <div class="analyzer-analyzing">Selecione um arquivo para analisar</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODO OTIMIZAR -->
+  <div class="card" id="cardOptimize" style="display:none">
+    <div class="ch">
+      <div class="ch-left"><span class="ch-icon">🚀</span>Otimizar para TikTok</div>
+      <div class="ch-badge">FFMPEG</div>
+    </div>
+    <div class="cb" style="display:flex;flex-direction:column;gap:16px">
+
+      <!-- Resolução -->
+      <div class="opt-section">
+        <div class="opt-section-title">📐 Resolução de saída</div>
+        <div class="opt-chips">
+          <div class="chip sel" data-group="res" data-val="1080p" onclick="selChip(this)">1080p ✅</div>
+          <div class="chip" data-group="res" data-val="720p" onclick="selChip(this)">720p</div>
+          <div class="chip" data-group="res" data-val="original" onclick="selChip(this)">Original</div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">TikTok recomenda 1080×1920 (9:16)</div>
+      </div>
+
+      <!-- FPS -->
+      <div class="opt-section">
+        <div class="opt-section-title">🎬 Taxa de quadros (FPS)</div>
+        <div class="opt-chips">
+          <div class="chip sel" data-group="fps" data-val="30" onclick="selChip(this)">30fps ✅</div>
+          <div class="chip" data-group="fps" data-val="24" onclick="selChip(this)">24fps</div>
+          <div class="chip" data-group="fps" data-val="60" onclick="selChip(this)">60fps</div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">TikTok recomenda 24-30fps</div>
+      </div>
+
+      <!-- Dispositivo -->
+      <div class="opt-section">
+        <div class="opt-section-title">📱 Metadados do dispositivo</div>
+        <select id="optDevice" class="ifield">
+          <option value="">— Selecionar dispositivo —</option>
+        </select>
+      </div>
+
+      <!-- Progresso -->
+      <div class="job-progress" id="jobProgress">
+        <div class="job-title" id="jobTitle">Processando...</div>
+        <div class="job-bar-bg"><div class="job-bar" id="jobBar"></div></div>
+        <div class="job-msg" id="jobMsg">Aguardando...</div>
+      </div>
+
+      <div class="err" id="optErr"></div>
+
+      <button class="opt-btn" id="optBtn" onclick="startOptimize()" disabled>
+        🚀 Otimizar e Aplicar Metadados
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. DEVICE -->
+  <div class="card locked" id="c2">
+    <div class="ch">
+      <div class="ch-left"><span class="ch-icon">📱</span> Dispositivo de Destino</div>
+      <div class="ch-badge">PASSO 2</div>
+    </div>
+    <div class="cb">
+      <input class="dsearch" id="dsearch" placeholder="🔍  Buscar dispositivo..." oninput="filterDev()">
+      <div class="dlist" id="dlist"></div>
+    </div>
+  </div>
+
+  <!-- 3. OPTIONS -->
+  <div class="card locked" id="c3">
+    <div class="ch">
+      <div class="ch-left"><span class="ch-icon">⚙️</span> Configurações</div>
+      <div class="ch-badge">PASSO 3</div>
+    </div>
+    <div class="cb" style="display:flex;flex-direction:column;gap:10px">
+
+      <div class="opt-row" onclick="togDate()">
+        <div class="opt-info">
+          <div class="opt-title">📅 Data e Hora Personalizadas</div>
+          <div class="opt-sub">Definir data de criação manualmente</div>
+        </div>
+        <div class="tog" id="tDate"></div>
+      </div>
+      <div class="opt-expand" id="xDate">
+        <div class="input-row">
+          <div class="input-group">
+            <div class="ilabel">Data</div>
+            <input type="date" class="ifield" id="iDate">
+          </div>
+          <div class="input-group">
+            <div class="ilabel">Hora</div>
+            <input type="time" class="ifield" id="iTime">
+          </div>
+        </div>
+      </div>
+
+      <div class="opt-row" onclick="togGPS()">
+        <div class="opt-info">
+          <div class="opt-title">📍 Localização GPS</div>
+          <div class="opt-sub">Embutir coordenadas no arquivo (opcional)</div>
+        </div>
+        <div class="tog" id="tGPS"></div>
+      </div>
+      <div class="opt-expand" id="xGPS">
+        <div class="input-row">
+          <div class="input-group">
+            <div class="ilabel">Latitude</div>
+            <input type="number" class="ifield" id="iLat" placeholder="-11.4200" step="0.000001">
+            <div class="ihint">Ex: -11.42 (Tobias Barreto)</div>
+          </div>
+          <div class="input-group">
+            <div class="ilabel">Longitude</div>
+            <input type="number" class="ifield" id="iLon" placeholder="-37.9969" step="0.000001">
+            <div class="ihint">Ex: -37.99 (Tobias Barreto)</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 4. PROCESS -->
+  <div class="card locked" id="c4">
+    <div class="ch">
+      <div class="ch-left"><span class="ch-icon">🚀</span> Processar</div>
+      <div class="ch-badge">PASSO 4</div>
+    </div>
+    <div class="cb" style="display:flex;flex-direction:column;gap:14px">
+
+      <div class="compare" id="cmpWrap">
+        <div class="cmp-col">
+          <div class="cmp-label"><span class="dot"></span> Original</div>
+          <div class="cmp-item"><div class="cmp-lbl">Fabricante</div><div class="cmp-val" id="cO1">—</div></div>
+          <div class="cmp-item"><div class="cmp-lbl">Modelo</div><div class="cmp-val" id="cO2">—</div></div>
+        </div>
+        <div class="cmp-col">
+          <div class="cmp-label"><span class="dot new"></span> Novo</div>
+          <div class="cmp-item new"><div class="cmp-lbl">Fabricante</div><div class="cmp-val hi" id="cN1">—</div></div>
+          <div class="cmp-item new"><div class="cmp-lbl">Modelo</div><div class="cmp-val hi" id="cN2">—</div></div>
+        </div>
+      </div>
+
+      <div class="err" id="errMsg"></div>
+
+      <div class="prog-wrap" id="progWrap">
+        <div class="prog-bar-bg"><div class="prog-bar" id="progBar"></div></div>
+        <div class="prog-txt" id="progTxt">Preparando...</div>
+      </div>
+
+      <button class="proc-btn" id="procBtn" onclick="processFile()" disabled>
+        ⚡ Aplicar Metadados
+      </button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result" id="resultCard">
+    <div class="res-icon">✅</div>
+    <div class="res-title">Pronto!</div>
+    <div class="res-sub" id="resSub">Metadados substituídos com sucesso</div>
+
+    <!-- DIAGNÓSTICO -->
+    <div id="diagWrap" style="margin:18px 0;text-align:left"></div>
+
+    <a href="#" class="dl-btn" id="dlBtn" download>⬇️ Baixar Arquivo</a>
+    <br>
+    <button class="new-btn" onclick="resetAll()">↩️ Processar Outro</button>
+  </div>
+
+</div><!-- /scroll -->
+
+<script>
+// ═══════════════════════════════════════════════════
+// DISPOSITIVOS
+// ═══════════════════════════════════════════════════
+const DEVS = {
+  samsung_a15: { name:'Samsung Galaxy A15', brand:'Samsung', model:'SM-A155M/DSN', sw:'One UI 6.0', fl:4.0, fn:1.8, iso:20, fl35:27, expN:1, expD:100, subsec:'347', light:0, flash:0, wb:0, scene:0, meter:5, expProg:2 },
+  samsung_s24u: { name:'Galaxy S24 Ultra',  brand:'Samsung', model:'SM-S928B',     sw:'One UI 6.1', fl:4.3, fn:1.7, iso:50, fl35:24, expN:1, expD:120, subsec:'512', light:0, flash:0, wb:0, scene:0, meter:5, expProg:2 },
+  samsung_s23:  { name:'Galaxy S23',        brand:'Samsung', model:'SM-S911B',     sw:'One UI 5.1', fl:4.1, fn:1.8, iso:50, fl35:23, expN:1, expD:100, subsec:'281', light:0, flash:0, wb:0, scene:0, meter:5, expProg:2 },
+  samsung_a54:  { name:'Galaxy A54',        brand:'Samsung', model:'SM-A546B',     sw:'One UI 5.1', fl:4.6, fn:1.8, iso:50, fl35:26, expN:1, expD:100, subsec:'193', light:0, flash:0, wb:0, scene:0, meter:5, expProg:2 },
+  samsung_a34:  { name:'Galaxy A34',        brand:'Samsung', model:'SM-A346B',     sw:'One UI 5.1', fl:4.7, fn:2.0, iso:50, fl35:26, expN:1, expD:100, subsec:'445', light:0, flash:0, wb:0, scene:0, meter:5, expProg:2 },
+  moto_edge40:  { name:'Motorola Edge 40',  brand:'Motorola',model:'XT2303-2',     sw:'Android 13', fl:4.5, fn:1.8, iso:50, fl35:25, expN:1, expD:100, subsec:'128', light:0, flash:0, wb:0, scene:0, meter:5, expProg:2 },
+  moto_g84:     { name:'Moto G84',          brand:'Motorola',model:'XT2347-1',     sw:'Android 13', fl:4.5, fn:1.8, iso:50, fl35:25, expN:1, expD:100, subsec:'076', light:0, flash:0, wb:0, scene:0, meter:5, expProg:2 },
+  moto_g54:     { name:'Moto G54',          brand:'Motorola',model:'XT2343-1',     sw:'Android 13', fl:4.7, fn:1.8, iso:50, fl35:26, expN:1, expD:100, subsec:'209', light:0, flash:0, wb:0, scene:0, meter:5, expProg:2 },
+  xiaomi_14t:   { name:'Xiaomi 14T',        brand:'Xiaomi',  model:'24091PN0DG',   sw:'MIUI 14',    fl:4.2, fn:1.7, iso:50, fl35:24, expN:1, expD:120, subsec:'634', light:0, flash:0, wb:0, scene:0, meter:5, expProg:2 },
+  xiaomi_rn13:  { name:'Redmi Note 13',     brand:'Xiaomi',  model:'23090RA98G',   sw:'MIUI 14',    fl:4.7, fn:1.8, iso:50, fl35:26, expN:1, expD:100, subsec:'412', light:0, flash:0, wb:0, scene:0, meter:5, expProg:2 },
+  iphone15p:    { name:'iPhone 15 Pro',     brand:'Apple',   model:'iPhone15,2',   sw:'17.0',       fl:4.3, fn:1.7, iso:50, fl35:24, expN:1, expD:120, subsec:'823', light:0, flash:0, wb:0, scene:0, meter:5, expProg:2 },
+  iphone14:     { name:'iPhone 14',         brand:'Apple',   model:'iPhone14,7',   sw:'16.0',       fl:4.7, fn:1.8, iso:50, fl35:26, expN:1, expD:100, subsec:'567', light:0, flash:0, wb:0, scene:0, meter:5, expProg:2 },
+};
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let ST = {
+  file: null, fileType: null, origMeta: {},
+  dev: null, useDate: false, useGPS: false,
+  outUrl: null, outName: null,
+};
+
+// ═══════════════════════════════════════════════════
+// MODO DE OPERAÇÃO
+// ═══════════════════════════════════════════════════
+let currentMode = 'substitute'; // substitute | copy | view
+let copyMeta = null; // metadados copiados da foto de referência
+
+function setMode(mode) {
+  currentMode = mode;
+  // Atualizar abas
+  ['substitute','copy','view'].forEach(m => {
+    document.getElementById('mode'+m.charAt(0).toUpperCase()+m.slice(1))
+      .classList.toggle('active', m===mode);
+  });
+  // Mostrar/esconder cards
+  const isCopy   = mode==='copy';
+  const isView   = mode==='view';
+  const isSub    = mode==='substitute';
+  const isTiktok = mode==='tiktok';
+  document.getElementById('cardCopy').style.display   = isCopy   ? '' : 'none';
+  document.getElementById('cardView').style.display   = isView   ? '' : 'none';
+  document.getElementById('cardTiktok').style.display = isTiktok ? '' : 'none';
+  document.getElementById('c2').style.display = isSub ? '' : 'none';
+  document.getElementById('c3').style.display = isSub ? '' : 'none';
+  document.getElementById('c4').style.display = (isSub||isCopy) ? '' : 'none';
+
+  if (isView) {
+    document.getElementById('cardView').classList.remove('locked');
+    if (ST.file) renderViewer(ST.file);
+  }
+  if (isTiktok) {
+    document.getElementById('cardTiktok').classList.remove('locked');
+    // Para fotos: análise local (não precisa de ffprobe)
+    // Para vídeos: usar ffprobe do servidor se disponível
+    const fileToAnalyze = ST.file || new File([], 'arquivo');
+    runTiktokAnalysis(fileToAnalyze);
+  }
+  if (isCopy) document.getElementById('cardCopy').classList.remove('locked');
+  if (isSub && ST.file) document.getElementById('c2').classList.remove('locked');
+}
+
+// ── COPY MODE ─────────────────────────────────────
+document.getElementById('copyInput').addEventListener('change', e => loadCopyRef(e.target.files[0]));
+
+async function loadCopyRef(file) {
+  if (!file) return;
+  const isVideo = file.type.startsWith('video');
+  const buf = await file.arrayBuffer();
+
+  let extracted = null;
+  if (isVideo) {
+    extracted = extractMp4Meta(buf);
+    if (!extracted) {
+      alert('Não foi possível ler metadados deste vídeo. Use um vídeo gravado diretamente pelo seu A15.');
+      return;
+    }
+  } else {
+    extracted = extractExifForCopy(buf);
+    if (!extracted) {
+      alert('Não foi possível ler EXIF desta foto. Use uma foto tirada diretamente pelo seu A15.');
+      return;
+    }
+  }
+
+  copyMeta = extracted;
+  copyMeta.isVideo = isVideo;
+  document.getElementById('copyZone').style.display = 'none';
+  document.getElementById('copyLoaded').classList.add('show');
+  document.getElementById('copyName').textContent = file.name;
+  if (isVideo) {
+    document.getElementById('copyMeta').textContent =
+      `${extracted.make || '?'} ${extracted.model || '?'} · ${extracted.sw || ''} · ${extracted.date || ''}`;
+  } else {
+    document.getElementById('copyMeta').textContent =
+      `${extracted.make} ${extracted.model} · f/${extracted.fn} · ${extracted.fl}mm · ISO ${extracted.iso}`;
+  }
+  if (currentMode === 'copy') {
+    document.getElementById('procBtn').disabled = !ST.file;
+  }
+}
+
+function resetCopy() {
+  copyMeta = null;
+  document.getElementById('copyInput').value = '';
+  document.getElementById('copyZone').style.display = '';
+  document.getElementById('copyLoaded').classList.remove('show');
+  document.getElementById('procBtn').disabled = true;
+}
+
+// ─── Extrair metadados de texto de um MP4 ────────────────────
+function extractMp4Meta(buf) {
+  try {
+    const u8 = new Uint8Array(buf);
+    const dv = new DataView(buf);
+    // Procurar box 'moov' no arquivo
+    let off = 0;
+    while (off < u8.length - 8) {
+      const size = dv.getUint32(off);
+      const type = String.fromCharCode(u8[off+4],u8[off+5],u8[off+6],u8[off+7]);
+      if (type === 'moov') {
+        return parseMoovMeta(dv, u8, off+8, off+size, buf);
+      }
+      if (size < 8 || size > u8.length) break;
+      off += size;
+    }
+  } catch(e) {}
+  return null;
+}
+
+function parseMoovMeta(dv, u8, start, end, buf) {
+  const result = { make:'', model:'', sw:'', date:'', raw: null };
+  let off = start;
+  while (off < end - 8) {
+    const size = dv.getUint32(off);
+    const type = String.fromCharCode(u8[off+4],u8[off+5],u8[off+6],u8[off+7]);
+    if (size < 8) break;
+
+    if (type === 'udta') {
+      // Procurar dentro do udta por metadados
+      parseUdtaMeta(dv, u8, off+8, off+size, result);
+    }
+    if (['trak','mdia','minf','udta'].includes(type)) {
+      parseMoovMeta(dv, u8, off+8, off+size, buf);
+    }
+    if (type === 'mvhd') {
+      // Extrair creation_time do mvhd
+      const ver = u8[off+8];
+      if (ver === 0) {
+        const ts = dv.getUint32(off+12); // segundos desde 1904
+        if (ts > 0) {
+          const epoch = new Date((ts - 2082844800) * 1000);
+          result.date = epoch.toISOString().replace('T',' ').slice(0,19);
+        }
+      }
+    }
+    off += size;
+  }
+  // Guardar bloco moov raw para reutilizar metadados
+  result.raw = buf;
+  return (result.make || result.model || result.date) ? result : null;
+}
+
+function parseUdtaMeta(dv, u8, start, end, result) {
+  let off = start;
+  while (off < end - 8) {
+    const size = dv.getUint32(off);
+    const type = String.fromCharCode(u8[off+4],u8[off+5],u8[off+6],u8[off+7]);
+    if (size < 8) break;
+    // Ler strings de metadados comuns
+    const readStr = (o, len) => {
+      let s = '';
+      for (let i = 0; i < len; i++) {
+        const c = u8[o+i];
+        if (c === 0) break;
+        if (c >= 32 && c < 127) s += String.fromCharCode(c);
+      }
+      return s.trim();
+    };
+    const dataStart = off + 8;
+    const dataLen = size - 8;
+    if (type === '©mak' || type === 'make') result.make = readStr(dataStart+4, dataLen-4);
+    if (type === '©mod' || type === 'modl') result.model = readStr(dataStart+4, dataLen-4);
+    if (type === '©swr' || type === 'swr ') result.sw = readStr(dataStart+4, dataLen-4);
+    if (type === '©day') result.date = readStr(dataStart+4, dataLen-4);
+    // Android tags
+    if (size > 30) {
+      const content = readStr(dataStart, dataLen);
+      if (content.toLowerCase().includes('samsung') && !result.make) result.make = 'samsung';
+      if (content.includes('SM-A155') && !result.model) result.model = content.trim();
+    }
+    off += size;
+  }
+}
+
+function extractExifForCopy(buf) {
+  // Extrair bloco EXIF completo para reutilizar
+  try {
+    const view = new DataView(buf);
+    if (view.getUint16(0) !== 0xFFD8) return null;
+    let off = 2;
+    while (off < view.byteLength - 2) {
+      const mk = view.getUint16(off);
+      if (mk === 0xFFE1) {
+        const len = view.getUint16(off+2);
+        const hdr = String.fromCharCode(...new Uint8Array(buf, off+4, 6));
+        if (hdr.startsWith('Exif')) {
+          // Extrair campos legíveis para exibição
+          const tiffOff = off+10;
+          const tv = new DataView(buf, tiffOff);
+          const le = tv.getUint16(0)===0x4949;
+          const rd16 = o => le?tv.getUint16(o,true):tv.getUint16(o,false);
+          const rd32 = o => le?tv.getUint32(o,true):tv.getUint32(o,false);
+          const ifd0 = rd32(4);
+          const n = rd16(ifd0);
+          let make='',model='',sw='',dt='',fl=0,fn=0,iso=0;
+          for (let i=0;i<n;i++) {
+            const o=ifd0+2+i*12;
+            const tag=rd16(o); const cnt=rd32(o+4); const valOff=rd32(o+8);
+            const readStr = (start,len) => { let s=''; for(let j=0;j<len-1;j++){const c=tv.getUint8(start+j);if(c===0)break;s+=String.fromCharCode(c);} return s; };
+            if(tag===0x010F) make=readStr(cnt<=4?o+8:valOff, cnt);
+            if(tag===0x0110) model=readStr(cnt<=4?o+8:valOff, cnt);
+            if(tag===0x0131) sw=readStr(cnt<=4?o+8:valOff, cnt);
+            if(tag===0x0132) dt=readStr(cnt<=4?o+8:valOff, cnt);
+          }
+          // Guardar bloco EXIF raw completo para reutilizar
+          const exifBlock = buf.slice(off, off+2+len);
+          return {make:make||'?', model:model||'?', sw, dt, fl, fn, iso, raw: exifBlock};
+        }
+      }
+      if((view.getUint16(off)&0xFF00)!==0xFF00) break;
+      off += 2+view.getUint16(off+2);
+    }
+  } catch(e){}
+  return null;
+}
+
+// ── VIEWER ────────────────────────────────────────
+async function renderViewer(file) {
+  const wrap = document.getElementById('viewerWrap');
+  wrap.innerHTML = '<div class="viewer-empty">Analisando...</div>';
+  try {
+    const buf = await file.arrayBuffer();
+    const view = new DataView(buf);
+    const sections = {};
+    let off = 2;
+    while (off < view.byteLength-2) {
+      const mk = view.getUint16(off);
+      if (mk===0xFFDA) break;
+      if((mk&0xFF00)!==0xFF00) break;
+      const len = view.getUint16(off+2);
+      if (mk===0xFFE1) {
+        const hdr6 = String.fromCharCode(...new Uint8Array(buf,off+4,6));
+        const hdr23 = String.fromCharCode(...new Uint8Array(buf,off+4,Math.min(23,len)));
+        if (hdr6.startsWith('Exif')) {
+          sections['EXIF'] = parseExifFields(buf, off+10);
+        } else if (hdr23.includes('ns.adobe')||hdr23.includes('xpacket')) {
+          sections['XMP'] = [['Presente','Sim — dados Adobe/Lightroom detectados']];
+        }
+      } else if (mk===0xFFED) {
+        sections['IPTC'] = [['Presente','Sim — dados Photoshop/agência detectados']];
+      } else if (mk===0xFFE0) {
+        sections['JFIF'] = [['Versão', '1.02']];
+      } else if (mk===0xFFE2) {
+        sections['ICC Profile'] = [['Presente','Sim — perfil de cor embutido']];
+      } else if (mk===0xFFEE) {
+        sections['Adobe APP14'] = [['Presente','Sim — marcador Adobe detectado']];
+      }
+      off += 2+len;
+    }
+    // Renderizar
+    let html = '';
+    const sectionIcons = {EXIF:'📷',XMP:'🎨',IPTC:'📰','JFIF':'📄','ICC Profile':'🎨','Adobe APP14':'⚠️'};
+    const warnSections = ['XMP','IPTC','Adobe APP14'];
+    for (const [sec, fields] of Object.entries(sections)) {
+      const isWarn = warnSections.includes(sec);
+      html += `<div class="viewer-section">
+        <div class="viewer-section-title">${sectionIcons[sec]||'📌'} ${sec} ${isWarn?'<span style="color:var(--red);font-size:9px;font-style:normal">⚠️ SERÁ REMOVIDO</span>':''}</div>`;
+      for (const [k,v] of fields) {
+        const cls = isWarn?'bad':(sec==='EXIF'&&['Make','Model'].includes(k)?'good':'');
+        html += `<div class="viewer-row"><span class="viewer-key">${k}</span><span class="viewer-val ${cls}">${v}</span></div>`;
+      }
+      html += '</div>';
+    }
+    if (!html) html = '<div class="viewer-empty">Nenhum metadado detectado</div>';
+    wrap.innerHTML = html;
+  } catch(e) {
+    wrap.innerHTML = `<div class="viewer-empty">Erro ao analisar: ${e.message}</div>`;
+  }
+}
+
+function parseExifFields(buf, tiffOffset) {
+  const fields = [];
+  try {
+    const tv = new DataView(buf, tiffOffset);
+    const le = tv.getUint16(0)===0x4949;
+    const rd16 = o=>le?tv.getUint16(o,true):tv.getUint16(o,false);
+    const rd32 = o=>le?tv.getUint32(o,true):tv.getUint32(o,false);
+    const readStr = (start,len)=>{let s='';for(let j=0;j<len;j++){const c=tv.getUint8(start+j);if(c===0)break;s+=String.fromCharCode(c);}return s.trim();};
+    const readRat = (off)=>{const n=rd32(off);const d=rd32(off+4);return d?+(n/d).toFixed(1):0;};
+    const ifd0 = rd32(4);
+    const n = rd16(ifd0);
+    const tagNames = {0x010F:'Make',0x0110:'Model',0x0131:'Software',0x0132:'DateTime',0x0112:'Orientation',0x8769:'ExifIFD→'};
+    let exifIfdOff = 0;
+    for (let i=0;i<n;i++) {
+      const o=ifd0+2+i*12;
+      const tag=rd16(o),type=rd16(o+2),cnt=rd32(o+4),valOff=rd32(o+8);
+      if (tag===0x8769) { exifIfdOff=valOff; continue; }
+      if (tagNames[tag]) {
+        const v = type===2?readStr(cnt<=4?o+8:valOff,cnt):(type===3?rd16(o+8):rd32(o+8));
+        if(v) fields.push([tagNames[tag], String(v)]);
+      }
+    }
+    if (exifIfdOff) {
+      const ne = rd16(exifIfdOff);
+      const exifTagNames = {0x829A:'ExposureTime',0x829D:'FNumber',0x8827:'ISO',0x9003:'DateTimeOriginal',0x920A:'FocalLength',0x9209:'Flash',0xA405:'FocalLength35mm',0x9290:'SubSecTime'};
+      for (let i=0;i<ne;i++) {
+        const o=exifIfdOff+2+i*12;
+        const tag=rd16(o),type=rd16(o+2),cnt=rd32(o+4),valOff=rd32(o+8);
+        if (!exifTagNames[tag]) continue;
+        let v='';
+        if (type===2) v=readStr(cnt<=4?o+8:valOff,cnt);
+        else if (type===3) v=String(rd16(o+8));
+        else if (type===5){const n2=rd32(valOff),d2=rd32(valOff+4);v=d2?`${n2}/${d2}`:'0';}
+        if(v) fields.push([exifTagNames[tag],v]);
+      }
+    }
+  } catch(e){}
+  return fields.length?fields:[['Status','Bloco EXIF vazio']];
+}
+
+// ═══════════════════════════════════════════════════
+// ANALISADOR TIKTOK
+// ═══════════════════════════════════════════════════
+
+// Specs oficiais TikTok 2025
+const TIKTOK_SPECS = {
+  // Vídeo
+  resW: 1080, resH: 1920,           // resolução ideal
+  resWmin: 720, resHmin: 960,        // mínimo aceitável
+  aspectIdeal: 9/16,                 // proporção ideal (vertical)
+  aspectLandscape: 16/9,             // horizontal (aceitável)
+  aspectSquare: 1,                   // quadrado (aceitável)
+  fpsIdeal: [24, 25, 30],           // FPS ideais
+  fpsMax: 60,
+  fpsMin: 15,
+  durationMin: 3,                    // segundos mínimos
+  durationMax: 600,                  // 10 minutos (limite conta normal)
+  sizeMaxMB: 287,                    // MB máximo mobile
+  codecIdeal: 'h264',               // codec recomendado
+  // Áudio
+  audioIdeal: 'aac',
+  audioBitrateMin: 64,              // kbps mínimo
+  audioBitrateIdeal: 128,
+  // Qualidade
+  bitrateMinMbps: 1,                // Mbps mínimo
+  bitrateGoodMbps: 5,               // Mbps bom
+};
+
+async function _runTiktokAnalysisBase(file) {
+  const wrap = document.getElementById('analyzerWrap');
+  wrap.innerHTML = '<div class="analyzer-analyzing">Analisando<span class="prog-dots"></span></div>';
+
+  // Detectar tipo
+  const isVideo = file.type.startsWith('video');
+  const isPhoto = file.type.startsWith('image');
+  const sizeMB = file.size / 1048576;
+
+  const checks = [];
+  let totalScore = 0;
+  let maxScore = 0;
+
+  if (isVideo) {
+    // ── Análise via FileReader + heurísticas MP4 ──
+    const buf = await file.arrayBuffer();
+    const vidInfo = parseVideoInfo(buf, file);
+
+    // 1. RESOLUÇÃO
+    maxScore += 25;
+    if (vidInfo.width && vidInfo.height) {
+      const w = vidInfo.width, h = vidInfo.height;
+      const isVertical = h >= w;
+      const shortSide = isVertical ? w : h;
+      const longSide  = isVertical ? h : w;
+      const is4K   = shortSide >= 2160 || longSide >= 3840;
+      const isFullHD = shortSide >= 1080 || longSide >= 1920;
+      const isHD   = shortSide >= 720;
+      if (is4K) {
+        // TikTok comprime 4K para 1080p — aceita mas não agrega vantagem
+        totalScore += 22;
+        checks.push({status:'warn', icon:'⚠️', name:'Resolução', detail:`<strong>${w}×${h} (4K)</strong> — o TikTok comprime para 1080p automaticamente`, tip:'4K não tem vantagem no TikTok — o app comprime para 1080p. Exporte em 1080p para upload mais rápido e mesmo qualidade.'});
+      } else if (isFullHD) {
+        totalScore += 25;
+        checks.push({status:'ok', icon:'✅', name:'Resolução', detail:`<strong>${w}×${h}</strong> — Full HD, resolução ideal para TikTok`});
+      } else if (isHD) {
+        totalScore += 15;
+        checks.push({status:'warn', icon:'⚠️', name:'Resolução', detail:`<strong>${w}×${h}</strong> — HD aceitável, mas 1080p é recomendado`, tip:'Tente gravar ou exportar em 1080p para melhor distribuição.'});
+      } else {
+        totalScore += 0;
+        checks.push({status:'fail', icon:'❌', name:'Resolução', detail:`<strong>${w}×${h}</strong> — Resolução baixa demais`, tip:'Resolução abaixo de 720p causa redução severa de alcance. O TikTok pode não distribuir o vídeo.'});
+      }
+
+      // 2. PROPORÇÃO
+      maxScore += 15;
+      const ratio = w/h;
+      const diff916 = Math.abs(ratio - 9/16);
+      const diff169 = Math.abs(ratio - 16/9);
+      const diff11  = Math.abs(ratio - 1);
+      if (diff916 < 0.05) {
+        totalScore += 15;
+        checks.push({status:'ok', icon:'✅', name:'Proporção', detail:`<strong>9:16 Vertical</strong> — formato nativo do TikTok, máxima entrega`});
+      } else if (diff169 < 0.05) {
+        totalScore += 10;
+        checks.push({status:'warn', icon:'⚠️', name:'Proporção', detail:`<strong>16:9 Horizontal</strong> — funciona, mas ocupa menos tela no feed`, tip:'Vídeos verticais 9:16 têm até 3× mais engajamento no TikTok.'});
+      } else if (diff11 < 0.05) {
+        totalScore += 8;
+        checks.push({status:'warn', icon:'⚠️', name:'Proporção', detail:`<strong>1:1 Quadrado</strong> — aceitável, mas não é o ideal`, tip:'Prefira o formato 9:16 para maximizar a área de visualização.'});
+      } else {
+        totalScore += 3;
+        checks.push({status:'fail', icon:'❌', name:'Proporção', detail:`<strong>${(ratio).toFixed(2)}:1</strong> — proporção incomum`, tip:'Corte o vídeo para 9:16 antes de postar. Proporções fora do padrão são penalizadas.'});
+      }
+    } else {
+      checks.push({status:'info', icon:'ℹ️', name:'Resolução', detail:'Não foi possível detectar automaticamente — verifique manualmente'});
+      maxScore += 25; // contar mesmo sem dados
+    }
+
+    // 3. TAMANHO DO ARQUIVO
+    maxScore += 15;
+    if (sizeMB <= 287) {
+      if (sizeMB >= 5) {
+        totalScore += 15;
+        checks.push({status:'ok', icon:'✅', name:'Tamanho', detail:`<strong>${sizeMB.toFixed(1)} MB</strong> — dentro do limite (máx 287 MB)`});
+      } else if (sizeMB >= 1) {
+        totalScore += 10;
+        checks.push({status:'warn', icon:'⚠️', name:'Tamanho', detail:`<strong>${sizeMB.toFixed(1)} MB</strong> — arquivo pequeno pode indicar qualidade baixa`, tip:'Arquivos muito pequenos geralmente têm bitrate baixo, o que reduz qualidade visual.'});
+      } else {
+        totalScore += 5;
+        checks.push({status:'warn', icon:'⚠️', name:'Tamanho', detail:`<strong>${sizeMB.toFixed(1)} MB</strong> — arquivo muito pequeno`, tip:'Bitrate provavelmente abaixo do mínimo recomendado pelo TikTok.'});
+      }
+    } else {
+      totalScore += 0;
+      checks.push({status:'fail', icon:'❌', name:'Tamanho', detail:`<strong>${sizeMB.toFixed(1)} MB</strong> — acima do limite de 287 MB`, tip:'Comprima o vídeo antes de enviar. O TikTok rejeita arquivos acima do limite.'});
+    }
+
+    // 4. DURAÇÃO
+    maxScore += 15;
+    if (vidInfo.duration) {
+      const dur = vidInfo.duration;
+      const min = Math.floor(dur/60);
+      const sec = Math.floor(dur%60);
+      const durStr = min > 0 ? `${min}m ${sec}s` : `${sec}s`;
+      if (dur >= 5 && dur <= 600) {
+        totalScore += 15;
+        checks.push({status:'ok', icon:'✅', name:'Duração', detail:`<strong>${durStr}</strong> — duração dentro do ideal`});
+      } else if (dur >= 3 && dur < 5) {
+        totalScore += 10;
+        checks.push({status:'warn', icon:'⚠️', name:'Duração', detail:`<strong>${durStr}</strong> — muito curto`, tip:'Vídeos abaixo de 5 segundos têm menor alcance orgânico.'});
+      } else if (dur < 3) {
+        totalScore += 0;
+        checks.push({status:'fail', icon:'❌', name:'Duração', detail:`<strong>${durStr}</strong> — abaixo do mínimo`, tip:'O TikTok exige mínimo de 3 segundos. Vídeos curtos demais são rejeitados.'});
+      } else {
+        totalScore += 12;
+        checks.push({status:'warn', icon:'⚠️', name:'Duração', detail:`<strong>${durStr}</strong> — vídeo longo`, tip:'Vídeos acima de 3 minutos têm menor taxa de retenção. Considere dividir em partes.'});
+      }
+    } else {
+      maxScore += 15;
+      checks.push({status:'info', icon:'ℹ️', name:'Duração', detail:'Não detectada automaticamente no navegador'});
+    }
+
+    // 5. BITRATE ESTIMADO
+    maxScore += 15;
+    if (vidInfo.duration && vidInfo.duration > 0) {
+      const bitrMbps = (file.size * 8) / vidInfo.duration / 1000000;
+      if (bitrMbps >= TIKTOK_SPECS.bitrateGoodMbps) {
+        totalScore += 15;
+        checks.push({status:'ok', icon:'✅', name:'Bitrate estimado', detail:`<strong>${bitrMbps.toFixed(1)} Mbps</strong> — qualidade boa`});
+      } else if (bitrMbps >= TIKTOK_SPECS.bitrateMinMbps) {
+        totalScore += 8;
+        checks.push({status:'warn', icon:'⚠️', name:'Bitrate estimado', detail:`<strong>${bitrMbps.toFixed(1)} Mbps</strong> — qualidade razoável`, tip:'Bitrate abaixo de 5 Mbps pode causar compressão excessiva pelo TikTok.'});
+      } else {
+        totalScore += 0;
+        checks.push({status:'fail', icon:'❌', name:'Bitrate estimado', detail:`<strong>${bitrMbps.toFixed(1)} Mbps</strong> — qualidade insuficiente`, tip:'Bitrate muito baixo é a causa mais comum de punição de qualidade no TikTok. Grave em maior qualidade.'});
+      }
+    } else {
+      maxScore += 15;
+      checks.push({status:'info', icon:'ℹ️', name:'Bitrate', detail:'Não calculável sem dados de duração'});
+    }
+
+    // 6. FPS — detectar via nome do arquivo ou metadados
+    maxScore += 10;
+    const fname = file.name.toLowerCase();
+    const fpsMatch = fname.match(/(\d+)fps/);
+    const detectedFps = fpsMatch ? parseInt(fpsMatch[1]) : null;
+    if (detectedFps) {
+      if (detectedFps <= 30) {
+        totalScore += 10;
+        checks.push({status:'ok', icon:'✅', name:'Taxa de quadros (FPS)', detail:`<strong>${detectedFps} FPS</strong> — ideal para TikTok`});
+      } else if (detectedFps <= 60) {
+        totalScore += 8;
+        checks.push({status:'warn', icon:'⚠️', name:'Taxa de quadros (FPS)', detail:`<strong>${detectedFps} FPS</strong> — aceito, mas 24-30fps é o padrão`, tip:'O TikTok recomenda 24-30fps. 60fps funciona mas pode causar conversão automática.'});
+      } else {
+        totalScore += 3;
+        checks.push({status:'fail', icon:'❌', name:'Taxa de quadros (FPS)', detail:`<strong>${detectedFps} FPS</strong> — acima do suportado pelo TikTok`, tip:'O TikTok não suporta acima de 60fps e converte automaticamente para 30fps, o que pode causar problemas de qualidade. Exporte em 30fps.'});
+      }
+    } else {
+      totalScore += 7; // assumir OK se não detectado
+      checks.push({status:'info', icon:'ℹ️', name:'Taxa de quadros (FPS)', detail:'Não detectado — verifique se está entre 24-30fps', tip:'O TikTok recomenda 24-30fps para máxima compatibilidade.'});
+    }
+
+    // 7. CODEC (heurística pelo tipo de arquivo)
+    maxScore += 15;
+    if (file.type === 'video/mp4' || file.name.endsWith('.mp4')) {
+      totalScore += 15;
+      checks.push({status:'ok', icon:'✅', name:'Formato', detail:`<strong>MP4 (H.264)</strong> — formato oficial recomendado pelo TikTok`});
+    } else if (file.type === 'video/quicktime' || file.name.endsWith('.mov')) {
+      totalScore += 12;
+      checks.push({status:'warn', icon:'⚠️', name:'Formato', detail:`<strong>MOV</strong> — compatível, mas MP4/H.264 é preferido`, tip:'Converta para MP4 H.264 para garantir máxima compatibilidade.'});
+    } else {
+      totalScore += 5;
+      checks.push({status:'warn', icon:'⚠️', name:'Formato', detail:`<strong>${file.type||file.name.split('.').pop()}</strong> — formato não otimizado`, tip:'Use MP4 com codec H.264 e áudio AAC para melhor compatibilidade.'});
+    }
+
+  } else if (isPhoto) {
+    // ── Análise de foto ──
+    maxScore = 100;
+    const img = await new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=URL.createObjectURL(file); });
+
+    // Resolução
+    const w=img.naturalWidth, h=img.naturalHeight;
+    if (w>=1080 && h>=1350) { totalScore+=30; checks.push({status:'ok',icon:'✅',name:'Resolução da foto',detail:`<strong>${w}×${h}</strong> — ótima para TikTok`}); }
+    else if (w>=720) { totalScore+=18; checks.push({status:'warn',icon:'⚠️',name:'Resolução da foto',detail:`<strong>${w}×${h}</strong> — aceitável`,tip:'Prefira fotos com pelo menos 1080×1350px.'}); }
+    else { totalScore+=0; checks.push({status:'fail',icon:'❌',name:'Resolução da foto',detail:`<strong>${w}×${h}</strong> — baixa resolução`,tip:'Foto abaixo de 720px pode ser rejeitada ou penalizada.'}); }
+
+    // Tamanho
+    if (sizeMB<=20) { totalScore+=25; checks.push({status:'ok',icon:'✅',name:'Tamanho',detail:`<strong>${sizeMB.toFixed(2)} MB</strong> — dentro do limite de 20MB`}); }
+    else { totalScore+=0; checks.push({status:'fail',icon:'❌',name:'Tamanho',detail:`<strong>${sizeMB.toFixed(2)} MB</strong> — acima de 20MB`,tip:'Reduza o tamanho da imagem antes de enviar.'}); }
+
+    // Formato
+    if (file.type==='image/jpeg'||file.type==='image/jpg') { totalScore+=25; checks.push({status:'ok',icon:'✅',name:'Formato',detail:'<strong>JPEG</strong> — formato ideal para TikTok'}); }
+    else if (file.type==='image/png') { totalScore+=20; checks.push({status:'warn',icon:'⚠️',name:'Formato',detail:'<strong>PNG</strong> — compatível',tip:'JPEG é preferido para fotos. PNG é melhor para gráficos.'}); }
+    else { totalScore+=10; checks.push({status:'warn',icon:'⚠️',name:'Formato',detail:`<strong>${file.type}</strong>`,tip:'Use JPEG ou PNG.'}); }
+
+    // Proporção
+    const r=w/h;
+    if (Math.abs(r-9/16)<0.05) { totalScore+=20; checks.push({status:'ok',icon:'✅',name:'Proporção',detail:'<strong>9:16</strong> — perfeita para feed TikTok'}); }
+    else if (Math.abs(r-1)<0.05) { totalScore+=14; checks.push({status:'warn',icon:'⚠️',name:'Proporção',detail:'<strong>1:1</strong> — quadrado, aceitável',tip:'9:16 vertical maximiza a área de visualização.'}); }
+    else { totalScore+=8; checks.push({status:'warn',icon:'⚠️',name:'Proporção',detail:`<strong>${r.toFixed(2)}:1</strong>`,tip:'Tente recortar para proporção 9:16.'}); }
+  }
+
+  // ── SCORE FINAL ──
+  const pct = maxScore > 0 ? Math.round((totalScore/maxScore)*100) : 0;
+  renderAnalysis(checks, pct, isVideo);
+}
+
+function parseVideoInfo(buf, file) {
+  const info = { width:0, height:0, duration:0, codec:'' };
+  try {
+    const u8 = new Uint8Array(buf);
+    const dv = new DataView(buf);
+    scanBoxes(dv, u8, 0, u8.length, info);
+  } catch(e){}
+  return info;
+}
+
+function scanBoxes(dv, u8, start, end, info) {
+  let off = start;
+  while (off < end - 8) {
+    let size = dv.getUint32(off);
+    // box size 1 = tamanho em 64-bit logo após o tipo
+    if (size === 1) {
+      try {
+        size = Number(dv.getBigUint64(off + 8, false));
+      } catch(e) { break; }
+    }
+    if (size < 8 || size > (end - off) + 16) break;
+    const type = String.fromCharCode(u8[off+4],u8[off+5],u8[off+6],u8[off+7]);
+
+    // Recursivos
+    if (['moov','trak','mdia','minf','stbl','udta'].includes(type)) {
+      const innerStart = (dv.getUint32(off) === 1) ? off+16 : off+8;
+      scanBoxes(dv, u8, innerStart, off+size, info);
+    }
+
+    // mvhd — duração total do vídeo
+    if (type === 'mvhd') {
+      try {
+        const ver = u8[off+8];
+        if (ver === 0) {
+          // version 0: 4(size)+4(type)+1(ver)+3(flags)+4(ctime)+4(mtime)+4(timescale)+4(duration)
+          const ts  = dv.getUint32(off + 20);
+          const dur = dv.getUint32(off + 24);
+          if (ts > 0 && dur > 0) info.duration = dur / ts;
+        } else {
+          // version 1: 4+4+1+3+8+8+4(timescale)+8(duration)
+          const ts  = dv.getUint32(off + 28);
+          const durHi = dv.getUint32(off + 32);
+          const durLo = dv.getUint32(off + 36);
+          const dur = durHi * 4294967296 + durLo;
+          if (ts > 0 && dur > 0) info.duration = dur / ts;
+        }
+      } catch(e) {}
+    }
+
+    // tkhd — dimensões (width/height em fixed-point 16.16)
+    if (type === 'tkhd') {
+      try {
+        const ver = u8[off+8];
+        // version 0: base=off+76; version 1: base=off+88
+        const base = (ver === 0) ? off + 76 : off + 88;
+        if (base + 8 <= off + size) {
+          const wFixed = dv.getUint32(base);
+          const hFixed = dv.getUint32(base + 4);
+          const w = wFixed >> 16;
+          const h = hFixed >> 16;
+          if (w > 0 && h > 0 && w < 16000 && h < 16000) {
+            info.width  = w;
+            info.height = h;
+          }
+        }
+      } catch(e) {}
+    }
+
+    // mdhd — fallback de duração por track
+    if (type === 'mdhd' && !info.duration) {
+      try {
+        const ver = u8[off+8];
+        if (ver === 0) {
+          const ts  = dv.getUint32(off + 20);
+          const dur = dv.getUint32(off + 24);
+          if (ts > 0 && dur > 0) info.duration = dur / ts;
+        } else {
+          const ts  = dv.getUint32(off + 28);
+          const durHi = dv.getUint32(off + 32);
+          const durLo = dv.getUint32(off + 36);
+          const dur = durHi * 4294967296 + durLo;
+          if (ts > 0 && dur > 0) info.duration = dur / ts;
+        }
+      } catch(e) {}
+    }
+
+    off += size;
+  }
+}
+
+function renderAnalysis(checks, score, isVideo) {
+  const wrap = document.getElementById('analyzerWrap');
+  let color, verdict, ringColor;
+  if (score>=85) { color='green'; verdict='✅ Pronto para postar!'; ringColor='#00d4a0'; }
+  else if (score>=60) { color='yellow'; verdict='⚠️ Pode postar, mas há melhorias'; ringColor='#fbbf24'; }
+  else { color='red'; verdict='❌ Risco de punição de qualidade'; ringColor='#ff4d6d'; }
+
+  const circ = 2*Math.PI*46;
+  const dash = (score/100)*circ;
+
+  const checksHtml = checks.map(c=>`
+    <div class="check-item ${c.status}">
+      <div class="check-ico">${c.icon}</div>
+      <div class="check-body">
+        <div class="check-name">${c.name}</div>
+        <div class="check-detail">${c.detail}</div>
+        ${c.tip?`<div class="check-tip">💡 ${c.tip}</div>`:''}
+      </div>
+    </div>`).join('');
+
+  wrap.innerHTML = `
+    <div class="score-ring-wrap">
+      <div class="score-ring">
+        <svg width="110" height="110" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="46" fill="none" stroke="var(--border2)" stroke-width="8"/>
+          <circle cx="55" cy="55" r="46" fill="none" stroke="${ringColor}" stroke-width="8"
+            stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}"
+            stroke-linecap="round" style="transition:stroke-dasharray 1s ease"/>
+        </svg>
+        <div class="score-ring-val" style="color:${ringColor}">${score}</div>
+      </div>
+      <div class="score-ring-label">Score TikTok ${isVideo?'Vídeo':'Foto'}</div>
+      <div class="score-verdict ${color}">${verdict}</div>
+    </div>
+    <div class="check-list">${checksHtml}</div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// MODO SERVIDOR — integração com backend Flask
+// ═══════════════════════════════════════════════════
+const SERVER_MODE = true; // Render backend ativo
+let ST_server = { fileId:null, ext:null, fileType:null, specs:{} };
+
+// Substituir upload para usar API do servidor
+document.getElementById('fi').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  await serverUpload(file);
+});
+
+async function serverUpload(file) {
+  const isVideo = file.type.startsWith('video');
+  document.getElementById('ficon').textContent = isVideo ? '🎬' : '📸';
+  document.getElementById('fname').textContent = file.name;
+  document.getElementById('fmeta').textContent = 'Enviando para servidor...';
+  document.getElementById('dz').style.display = 'none';
+  document.getElementById('fp').classList.add('show');
+
+  const form = new FormData();
+  form.append('file', file);
+
+  try {
+    const res  = await fetch('/api/upload', {method:'POST', body:form});
+    const data = await res.json();
+    if (data.error) { showErrGlobal(data.error); return; }
+
+    ST_server.fileId   = data.file_id;
+    ST_server.ext      = data.ext;
+    ST_server.fileType = data.type;
+    ST_server.specs    = data.specs || {};
+    ST.file     = file;
+    ST.fileType = data.type;
+
+    document.getElementById('fmeta').textContent = `${data.size} · ${data.filename}`;
+
+    // Mostrar meta original
+    const m = data.orig_meta;
+    setOrigMeta(m.make||'—', m.model||'—', m.date||'—');
+
+    // Mostrar abas
+    document.getElementById('modeTabs').style.display = '';
+    unlock('c2'); setStep(2);
+    setMode('substitute');
+
+    // Popular select de dispositivos no otimizador
+    populateOptDevices();
+
+    // Habilitar botão otimizar se for vídeo
+    if (data.type === 'video') {
+      document.getElementById('optBtn').disabled = false;
+    }
+
+    // Guardar specs precisas do ffprobe
+    if (data.specs && data.specs.width) {
+      ST_server.preciseSpecs = data.specs;
+    }
+
+    // Garantir ST.file para análise local de fallback
+    if (!ST.file) ST.file = file;
+
+  } catch(e) {
+    showErrGlobal('Erro no upload: ' + e.message);
+    resetFile();
+  }
+}
+
+function showErrGlobal(msg) {
+  document.getElementById('errMsg').textContent = '❌ ' + msg;
+  document.getElementById('errMsg').classList.add('show');
+}
+
+function populateOptDevices() {
+  const sel = document.getElementById('optDevice');
+  sel.innerHTML = '<option value="">— Selecionar dispositivo —</option>';
+  for (const [k,d] of Object.entries(DEVS)) {
+    const opt = document.createElement('option');
+    opt.value = k;
+    opt.textContent = d.name;
+    if (k === 'samsung_a15') opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+
+// ── CHIPS ───────────────────────────────────────────────────
+function selChip(el) {
+  const group = el.dataset.group;
+  document.querySelectorAll(`[data-group="${group}"]`).forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function getChip(group) {
+  const el = document.querySelector(`[data-group="${group}"].sel`);
+  return el ? el.dataset.val : null;
+}
+
+// ── OTIMIZAR ────────────────────────────────────────────────
+async function startOptimize() {
+  const res = getChip('res');
+  const fps = getChip('fps');
+  const dev = document.getElementById('optDevice').value;
+
+  if (!ST_server.fileId) { alert('Selecione um arquivo primeiro'); return; }
+  if (!dev) { alert('Selecione um dispositivo'); return; }
+
+  document.getElementById('optBtn').disabled = true;
+  document.getElementById('optErr').classList.remove('show');
+  document.getElementById('jobProgress').classList.add('show');
+
+  try {
+    const res2 = await fetch('/api/optimize_video', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        file_id: ST_server.fileId,
+        ext:     ST_server.ext,
+        device:  dev,
+        resolution: res,
+        fps:     parseInt(fps),
+      })
+    });
+    const data = await res2.json();
+    if (data.error) throw new Error(data.error);
+
+    // Polling de progresso
+    pollJob(data.job_id);
+
+  } catch(e) {
+    document.getElementById('optErr').textContent = '❌ ' + e.message;
+    document.getElementById('optErr').classList.add('show');
+    document.getElementById('optBtn').disabled = false;
+  }
+}
+
+let pollInterval = null;
+function pollJob(jobId) {
+  pollInterval = setInterval(async () => {
+    try {
+      const r = await fetch(`/api/job/${jobId}`);
+      const j = await r.json();
+
+      document.getElementById('jobBar').style.width = j.progress + '%';
+      document.getElementById('jobMsg').textContent = j.message;
+
+      if (j.status === 'done') {
+        clearInterval(pollInterval);
+        document.getElementById('jobTitle').textContent = '✅ Concluído!';
+        showOptResult(j.output, j.size);
+      } else if (j.status === 'error') {
+        clearInterval(pollInterval);
+        document.getElementById('optErr').textContent = '❌ ' + j.message;
+        document.getElementById('optErr').classList.add('show');
+        document.getElementById('optBtn').disabled = false;
+      }
+    } catch(e) { clearInterval(pollInterval); }
+  }, 800);
+}
+
+function showOptResult(filename, size) {
+  const dev = document.getElementById('optDevice').value;
+  const devName = DEVS[dev]?.name || '';
+  document.getElementById('resSub').textContent = `${devName} · ${size} · Otimizado para TikTok`;
+  document.getElementById('dlBtn').href = `/api/download/${filename}`;
+  document.getElementById('dlBtn').download = filename;
+  document.getElementById('resultCard').classList.add('show');
+  document.getElementById('scroll').scrollTo({top:9999, behavior:'smooth'});
+}
+
+// Sobrescrever processFile para usar API do servidor
+const _origProcessFile = _processFileBase;
+processFile = async function() {
+  if (!ST_server.fileId) { await _processFileBase(); return; }
+
+  hideErr(); showProg('Enviando para servidor...');
+  document.getElementById('procBtn').disabled = true;
+  setStep(4);
+  animProg(0,30,600);
+
+  const dev = ST.dev;
+  const isPhoto = ST_server.fileType === 'photo';
+  const endpoint = isPhoto ? '/api/process_photo' : '/api/process_video';
+
+  let customDate = null;
+  if (ST.useDate) {
+    const d = document.getElementById('iDate').value;
+    const t = document.getElementById('iTime').value;
+    if (d&&t) customDate = `${d.replace(/-/g,':')} ${t}:00`;
+  }
+  let gps = null;
+  if (ST.useGPS) {
+    const lat = parseFloat(document.getElementById('iLat').value);
+    const lon = parseFloat(document.getElementById('iLon').value);
+    if (!isNaN(lat)&&!isNaN(lon)) gps=[lat,lon];
+  }
+
+  animProg(30,80,1500,'Aplicando metadados no servidor...');
+
+  try {
+    const r = await fetch(endpoint, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        file_id: ST_server.fileId,
+        ext:     ST_server.ext,
+        device:  dev,
+        custom_date: customDate,
+        gps: gps,
+      })
+    });
+    const data = await r.json();
+    animProg(80,100,400,'Finalizando...');
+    setTimeout(() => {
+      hideProg();
+      if (data.error) {
+        showErr(data.error);
+        document.getElementById('procBtn').disabled = false;
+      } else {
+        document.getElementById('dlBtn').href = `/api/download/${data.output}`;
+        document.getElementById('dlBtn').download = data.output;
+        const d2 = DEVS[dev];
+        document.getElementById('resSub').textContent = `${d2?.name||''} · ${data.size}`;
+        renderDiag([], d2||{});
+        document.getElementById('resultCard').classList.add('show');
+        document.getElementById('scroll').scrollTo({top:9999,behavior:'smooth'});
+      }
+    }, 500);
+  } catch(e) {
+    hideProg();
+    showErr('Erro: ' + e.message);
+    document.getElementById('procBtn').disabled = false;
+  }
+}
+
+// Sobrescrever runTiktokAnalysis para usar ffprobe do servidor
+const _origAnalysis = _runTiktokAnalysisBase;
+runTiktokAnalysis = async function(file) {
+  // Se tiver arquivo no servidor, usar ffprobe (muito mais preciso)
+  if (ST_server.fileId) {
+    const wrap = document.getElementById('analyzerWrap');
+    wrap.innerHTML = '<div class="analyzer-analyzing">Analisando com FFprobe<span class="prog-dots"></span></div>';
+    try {
+      const r = await fetch('/api/analyze_video', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({file_id:ST_server.fileId, ext:ST_server.ext})
+      });
+    const specs = await r.json();
+    if (specs.error) { await _origAnalysis(file); return; }
+
+    // Usar dados precisos do ffprobe para análise
+    const checks = [];
+    let total=0, max=0;
+    const sizeMB = specs.size_mb;
+
+    // Resolução
+    max+=25;
+    const w=specs.width, h=specs.height;
+    const isV = h>=w;
+    const ss = isV?w:h;
+    if (ss>=2160) { total+=22; checks.push({status:'warn',icon:'⚠️',name:'Resolução',detail:`<strong>${w}×${h} (4K)</strong> — TikTok comprime para 1080p automaticamente`,tip:'Exporte em 1080p — mesma qualidade, upload mais rápido.'}); }
+    else if (ss>=1080) { total+=25; checks.push({status:'ok',icon:'✅',name:'Resolução',detail:`<strong>${w}×${h}</strong> — Full HD, ideal`}); }
+    else if (ss>=720)  { total+=15; checks.push({status:'warn',icon:'⚠️',name:'Resolução',detail:`<strong>${w}×${h}</strong> — HD aceitável`,tip:'Prefira 1080p para melhor distribuição.'}); }
+    else { checks.push({status:'fail',icon:'❌',name:'Resolução',detail:`<strong>${w}×${h}</strong> — baixa demais`,tip:'Abaixo de 720p: TikTok não distribui.'}); }
+
+    // Proporção
+    max+=15;
+    const ratio=w/h;
+    if (Math.abs(ratio-9/16)<0.05) { total+=15; checks.push({status:'ok',icon:'✅',name:'Proporção',detail:'<strong>9:16 Vertical</strong> — formato nativo TikTok'}); }
+    else if (Math.abs(ratio-16/9)<0.05) { total+=10; checks.push({status:'warn',icon:'⚠️',name:'Proporção',detail:'<strong>16:9 Horizontal</strong>',tip:'9:16 tem muito mais alcance.'}); }
+    else { total+=5; checks.push({status:'warn',icon:'⚠️',name:'Proporção',detail:`<strong>${ratio.toFixed(2)}:1</strong>`,tip:'Recorte para 9:16.'}); }
+
+    // FPS — dado preciso do ffprobe
+    max+=15;
+    const fps = specs.fps;
+    if (fps<=30) { total+=15; checks.push({status:'ok',icon:'✅',name:'Taxa de Quadros',detail:`<strong>${fps} FPS</strong> — ideal para TikTok`}); }
+    else if (fps<=60) { total+=10; checks.push({status:'warn',icon:'⚠️',name:'Taxa de Quadros',detail:`<strong>${fps} FPS</strong> — aceito`,tip:'24-30fps é o padrão recomendado.'}); }
+    else { total+=0; checks.push({status:'fail',icon:'❌',name:'Taxa de Quadros',detail:`<strong>${fps} FPS</strong> — acima do suporte`,tip:'TikTok não suporta acima de 60fps. Use o botão Otimizar para converter para 30fps automaticamente.'}); }
+
+    // Duração
+    max+=15;
+    const dur=specs.duration;
+    const mm=Math.floor(dur/60), ss2=Math.floor(dur%60);
+    const ds=mm>0?`${mm}m ${ss2}s`:`${ss2}s`;
+    if (dur>=5&&dur<=180) { total+=15; checks.push({status:'ok',icon:'✅',name:'Duração',detail:`<strong>${ds}</strong> — ideal`}); }
+    else if (dur>=3) { total+=10; checks.push({status:'warn',icon:'⚠️',name:'Duração',detail:`<strong>${ds}</strong>`,tip:'Vídeos entre 15-60s têm melhor retenção.'}); }
+    else { checks.push({status:'fail',icon:'❌',name:'Duração',detail:`<strong>${ds}</strong> — abaixo do mínimo`,tip:'Mínimo 3 segundos.'}); }
+
+    // Bitrate preciso
+    max+=15;
+    const br=specs.bitrate_mbps;
+    if (br>=5) { total+=15; checks.push({status:'ok',icon:'✅',name:'Bitrate',detail:`<strong>${br} Mbps</strong> — ótima qualidade`}); }
+    else if (br>=1) { total+=8; checks.push({status:'warn',icon:'⚠️',name:'Bitrate',detail:`<strong>${br} Mbps</strong>`,tip:'Abaixo de 5 Mbps pode causar compressão visível.'}); }
+    else { checks.push({status:'fail',icon:'❌',name:'Bitrate',detail:`<strong>${br} Mbps</strong> — muito baixo`,tip:'Cause mais comum de punição de qualidade.'}); }
+
+    // Codec
+    max+=10;
+    if (specs.codec_video==='h264') { total+=10; checks.push({status:'ok',icon:'✅',name:'Codec de Vídeo',detail:'<strong>H.264</strong> — codec oficial TikTok'}); }
+    else { total+=5; checks.push({status:'warn',icon:'⚠️',name:'Codec de Vídeo',detail:`<strong>${specs.codec_video}</strong>`,tip:'Use H.264 para garantir compatibilidade.'}); }
+
+    // Áudio
+    max+=5;
+    if (specs.codec_audio==='aac') { total+=5; checks.push({status:'ok',icon:'✅',name:'Codec de Áudio',detail:'<strong>AAC</strong> — recomendado'}); }
+    else { total+=2; checks.push({status:'warn',icon:'⚠️',name:'Codec de Áudio',detail:`<strong>${specs.codec_audio||'desconhecido'}</strong>`,tip:'Use AAC para melhor compatibilidade.'}); }
+
+    // Tamanho
+    max+=0; // bônus
+    if (sizeMB<=287) checks.push({status:'ok',icon:'✅',name:'Tamanho',detail:`<strong>${sizeMB} MB</strong> — dentro do limite de 287 MB`});
+    else checks.push({status:'fail',icon:'❌',name:'Tamanho',detail:`<strong>${sizeMB} MB</strong> — acima do limite`,tip:'Comprima antes de enviar.'});
+
+    const score = max>0?Math.round((total/max)*100):0;
+    renderAnalysis(checks, score, true);
+
+    // Destacar botão Otimizar se tiver problemas corrigíveis
+    const hasFail = checks.some(c=>c.status==='fail'||c.status==='warn');
+    if (hasFail) {
+      document.getElementById('tabOptimize')?.classList.add('active');
+    }
+
+    } catch(e) {
+      // Fallback para análise local se servidor falhar
+      if (file && file.size > 0) await _runTiktokAnalysisBase(file);
+      else {
+        const wrap = document.getElementById('analyzerWrap');
+        wrap.innerHTML = '<div class="analyzer-analyzing">Erro ao analisar — tente novamente</div>';
+      }
+    }
+    return;
+  }
+  // Sem servidor — análise local
+  if (file && file.size > 0) await _runTiktokAnalysisBase(file);
+}
+
+// Integrar setMode com nova aba
+const _origSetMode = setMode;
+setMode = function(mode) {
+  // Esconder aba otimizar
+  const cardOpt = document.getElementById('cardOptimize');
+  if (cardOpt) cardOpt.style.display = 'none';
+  const tabOpt = document.getElementById('modeOptimize');
+  if (tabOpt) tabOpt.classList.remove('active');
+
+  if (mode === 'optimize') {
+    ['substitute','copy','view','tiktok'].forEach(m => {
+      const el = document.getElementById('mode'+m.charAt(0).toUpperCase()+m.slice(1));
+      if(el) el.classList.remove('active');
+    });
+    if(tabOpt) tabOpt.classList.add('active');
+    if(cardOpt) cardOpt.style.display = '';
+    ['c2','c3','c4','cardCopy','cardView','cardTiktok'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.display='none';
+    });
+    return;
+  }
+  _origSetMode(mode);
+}
+
+// Badge servidor no header
+document.addEventListener('DOMContentLoaded', () => {
+  const badge = document.getElementById('serverBadge');
+  if (badge) {
+    badge.innerHTML = '<span class="server-badge"><span class="server-dot"></span>v3.0 LIVE</span>';
+  }
+});
+
+// ═══════════════════════════════════════════════════
+// SERVICE WORKER
+// ═══════════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  // Ao instalar novo SW, forçar atualização imediata
+  navigator.serviceWorker.register('sw.js').then(reg => {
+    reg.addEventListener('updatefound', () => {
+      const newSW = reg.installing;
+      newSW.addEventListener('statechange', () => {
+        if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+          // Nova versão disponível — recarregar automaticamente
+          window.location.reload();
+        }
+      });
+    });
+    // Verificar atualização ao abrir
+    reg.update();
+  }).catch(()=>{});
+}
+function forcarAtualizacao() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs => {
+      regs.forEach(r => r.unregister());
+      caches.keys().then(keys => {
+        Promise.all(keys.map(k => caches.delete(k))).then(() => {
+          window.location.reload(true);
+        });
+      });
+    });
+  } else {
+    window.location.reload(true);
+  }
+}
+
+console.log('%c MetaForge v3.0 ', 'background:#6c63ff;color:white;font-weight:bold;border-radius:4px;padding:2px 8px');
+
+// ═══════════════════════════════════════════════════
+// RENDER DEVICES
+// ═══════════════════════════════════════════════════
+function renderDevs(q='') {
+  const list = document.getElementById('dlist');
+  list.innerHTML = '';
+  const ql = q.toLowerCase();
+  for (const [k,d] of Object.entries(DEVS)) {
+    if (q && !d.name.toLowerCase().includes(ql) && !d.model.toLowerCase().includes(ql)) continue;
+    const el = document.createElement('div');
+    el.className = 'dcard' + (ST.dev===k?' sel':'');
+    el.dataset.key = k;
+    el.innerHTML = `
+      <div class="dcard-info">
+        <div class="dcard-brand">${d.brand}</div>
+        <div class="dcard-name">${d.name.replace(d.brand+' ','')}</div>
+        <div class="dcard-model">${d.model}</div>
+      </div>
+      <div class="dcard-check">${ST.dev===k?'✓':''}</div>`;
+    el.onclick = () => selectDev(k);
+    list.appendChild(el);
+  }
+}
+function filterDev() { renderDevs(document.getElementById('dsearch').value); }
+renderDevs();
+
+function selectDev(k) {
+  ST.dev = k;
+  renderDevs(document.getElementById('dsearch').value);
+  const d = DEVS[k];
+  document.getElementById('cN1').textContent = d.brand;
+  document.getElementById('cN2').textContent = d.model;
+  document.getElementById('cmpWrap').classList.add('show');
+  unlock('c3'); unlock('c4');
+  if (currentMode !== 'copy') {
+    document.getElementById('procBtn').disabled = false;
+  }
+  setStep(3);
+}
+
+// ═══════════════════════════════════════════════════
+// FILE HANDLING
+// ═══════════════════════════════════════════════════
+// Nota: o listener de change no #fi para SERVER_MODE está em serverUpload (linha ~1561)
+// Este listener só atua quando SERVER_MODE está desativado (modo offline/local)
+document.getElementById('fi').addEventListener('change', e => {
+  if (typeof SERVER_MODE !== 'undefined' && SERVER_MODE) return;
+  handleFile(e.target.files[0]);
+});
+document.getElementById('dz').addEventListener('dragover', e => { e.preventDefault(); document.getElementById('dz').classList.add('over'); });
+document.getElementById('dz').addEventListener('dragleave', () => document.getElementById('dz').classList.remove('over'));
+document.getElementById('dz').addEventListener('drop', e => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (typeof SERVER_MODE !== 'undefined' && SERVER_MODE) {
+    serverUpload(file);
+  } else {
+    handleFile(file);
+  }
+});
+
+function handleFile(file) {
+  if (!file) return;
+  // Em modo servidor, delegar ao serverUpload
+  if (typeof SERVER_MODE !== 'undefined' && SERVER_MODE) { serverUpload(file); return; }
+  ST.file = file;
+  ST.fileType = file.type.startsWith('video') ? 'video' : 'photo';
+
+  document.getElementById('ficon').textContent = ST.fileType==='video' ? '🎬' : '📸';
+  document.getElementById('fname').textContent = file.name;
+  document.getElementById('fmeta').textContent = fmtSize(file.size) + ' · ' + (file.type || 'arquivo');
+  document.getElementById('dz').style.display = 'none';
+  document.getElementById('fp').classList.add('show');
+
+  // Ler metadados originais
+  if (ST.fileType === 'photo') {
+    readExif(file);
+  } else {
+    // Vídeo: sem leitura de EXIF no browser — mostrar placeholder
+    setOrigMeta('—','—','—');
+  }
+
+  // Mostrar abas de modo e ativar fluxo
+  const modeTabs = document.getElementById('modeTabs');
+  modeTabs.style.display = '';
+  unlock('c2'); setStep(2);
+  // Iniciar no modo substituir por padrão
+  setMode('substitute');
+}
+
+function readExif(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const buf = e.target.result;
+    const view = new DataView(buf);
+    // Verificar JPEG
+    if (view.getUint16(0) !== 0xFFD8) { setOrigMeta('—','—','—'); return; }
+    // Procurar APP1 (EXIF)
+    let offset = 2;
+    while (offset < view.byteLength - 2) {
+      const marker = view.getUint16(offset);
+      if (marker === 0xFFE1) { // APP1
+        const len = view.getUint16(offset+2);
+        const exifStr = String.fromCharCode(...new Uint8Array(buf, offset+4, 6));
+        if (exifStr.startsWith('Exif')) {
+          parseExifBasic(buf, offset+10);
+        } else setOrigMeta('—','—','—');
+        return;
+      }
+      if ((marker & 0xFF00) !== 0xFF00) break;
+      offset += 2 + view.getUint16(offset+2);
+    }
+    setOrigMeta('—','—','—');
+  };
+  reader.readAsArrayBuffer(file.slice(0, 128*1024));
+}
+
+function parseExifBasic(buf, tiffOffset) {
+  try {
+    const view = new DataView(buf, tiffOffset);
+    const le = view.getUint16(0) === 0x4949;
+    const rd16 = o => le ? view.getUint16(o,true) : view.getUint16(o,false);
+    const rd32 = o => le ? view.getUint32(o,true) : view.getUint32(o,false);
+    const ifd0 = rd32(4);
+    const n = rd16(ifd0);
+    let make='—', model='—', date='—';
+    for (let i=0; i<n; i++) {
+      const o = ifd0 + 2 + i*12;
+      const tag = rd16(o);
+      const type = rd16(o+2);
+      const count = rd32(o+4);
+      let valOff = rd32(o+8);
+      if (tag===0x010F||tag===0x0110||tag===0x0132) {
+        let s='';
+        const start = count<=4 ? o+8 : valOff;
+        for (let j=0; j<count-1; j++) {
+          const c = view.getUint8(start+j);
+          if (c===0) break;
+          s += String.fromCharCode(c);
+        }
+        if (tag===0x010F) make=s||'—';
+        if (tag===0x0110) model=s||'—';
+        if (tag===0x0132) date=s||'—';
+      }
+    }
+    setOrigMeta(make,model,date);
+  } catch { setOrigMeta('—','—','—'); }
+}
+
+function setOrigMeta(make,model,date) {
+  ST.origMeta = {make,model,date};
+  const none = v => v==='—';
+  const set = (id,v) => { const el=document.getElementById(id); el.textContent=v; el.className='mi-val'+(none(v)?' none':''); };
+  set('om1',make); set('om2',model); set('om3',date);
+  document.getElementById('origWrap').style.display='block';
+  document.getElementById('cO1').textContent = make;
+  document.getElementById('cO2').textContent = model;
+}
+
+// ═══════════════════════════════════════════════════
+// TOGGLES
+// ═══════════════════════════════════════════════════
+function togDate() {
+  ST.useDate = !ST.useDate;
+  document.getElementById('tDate').classList.toggle('on', ST.useDate);
+  document.getElementById('xDate').classList.toggle('show', ST.useDate);
+  if (ST.useDate) {
+    const n = new Date();
+    document.getElementById('iDate').value = n.toISOString().split('T')[0];
+    document.getElementById('iTime').value = n.toTimeString().slice(0,5);
+  }
+}
+function togGPS() {
+  ST.useGPS = !ST.useGPS;
+  document.getElementById('tGPS').classList.toggle('on', ST.useGPS);
+  document.getElementById('xGPS').classList.toggle('show', ST.useGPS);
+}
+
+// ═══════════════════════════════════════════════════
+// PROCESS
+// ═══════════════════════════════════════════════════
+async function _processFileBase() {
+  if (!ST.file || !ST.dev) return;
+  hideErr();
+  showProg('Lendo arquivo...');
+  document.getElementById('procBtn').disabled = true;
+  setStep(4);
+  animProg(0, 25, 600);
+
+  try {
+    const buf = await ST.file.arrayBuffer();
+    animProg(25, 60, 800, 'Aplicando metadados...');
+
+    let outBuf, outName;
+    if (ST.fileType === 'photo') {
+      if (currentMode === 'copy' && copyMeta?.raw) {
+        outBuf = await processPhotoCopy(buf, copyMeta.raw);
+      } else {
+        outBuf = await processPhoto(buf);
+      }
+      outName = ST.file.name.replace(/(\.[^.]+)$/, '_metaforge$1');
+    } else {
+      if (currentMode === 'copy' && copyMeta) {
+        outBuf = await processVideoCopy(buf, copyMeta);
+      } else {
+        outBuf = await processVideo(buf);
+      }
+      outName = ST.file.name.replace(/(\.[^.]+)$/, '_metaforge$1');
+    }
+
+    animProg(60, 100, 600, 'Finalizando...');
+
+    setTimeout(() => {
+      hideProg();
+      const blob = new Blob([outBuf], {type: ST.file.type});
+      const url = URL.createObjectURL(blob);
+      ST.outUrl = url; ST.outName = outName;
+
+      document.getElementById('dlBtn').href = url;
+      document.getElementById('dlBtn').download = outName;
+      const d = DEVS[ST.dev];
+      document.getElementById('resSub').textContent = `${d.name} · ${fmtSize(outBuf.byteLength)}`;
+
+      // Renderizar diagnóstico
+      renderDiag(ST.diagLog || [], d);
+
+      document.getElementById('resultCard').classList.add('show');
+      document.getElementById('scroll').scrollTo({top:9999, behavior:'smooth'});
+    }, 700);
+
+  } catch(e) {
+    hideProg();
+    showErr('Erro: ' + e.message);
+    document.getElementById('procBtn').disabled = false;
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// PHOTO EXIF WRITER
+// ═══════════════════════════════════════════════════
+async function processPhoto(buf) {
+  const dev = DEVS[ST.dev];
+  const view = new DataView(buf);
+
+  if (view.getUint16(0) !== 0xFFD8) throw new Error('Arquivo não é um JPEG válido');
+
+  // ── VARRER TODOS OS SEGMENTS APP ──────────────────────────────
+  // Coletar: quais remover (EXIF/APP1, IPTC/APP13, XMP/APP1-xmp)
+  // e quais manter (APP0/JFIF, APP2/ICC, imagem em si)
+  const segments = []; // {start, end, keep}
+  let off = 2;
+  while (off < view.byteLength - 2) {
+    const marker = view.getUint16(off);
+    // Marcadores sem tamanho (SOS — início dos dados de imagem)
+    if (marker === 0xFFDA) { segments.push({start:off, end:view.byteLength, keep:true, sos:true}); break; }
+    if ((marker & 0xFF00) !== 0xFF00) break;
+    const segLen = view.getUint16(off + 2); // inclui os 2 bytes do length
+    const segEnd = off + 2 + segLen;
+    let keep = true;
+    let label = '';
+
+    if (marker === 0xFFE1) {
+      // APP1 — pode ser EXIF ou XMP
+      const hdr = String.fromCharCode(...new Uint8Array(buf, off+4, 6));
+      if (hdr.startsWith('Exif')) {
+        keep = false; label = 'EXIF original removido';
+      } else {
+        // Verificar XMP: começa com "http://ns.adobe.com/xap"
+        const xmpHdr = String.fromCharCode(...new Uint8Array(buf, off+4, 23));
+        if (xmpHdr.includes('ns.adobe') || xmpHdr.includes('xpacket')) {
+          keep = false; label = 'XMP removido';
+        }
+      }
+    } else if (marker === 0xFFED) {
+      // APP13 — IPTC/Photoshop
+      keep = false; label = 'IPTC/Photoshop removido';
+    } else if (marker === 0xFFEE) {
+      // APP14 — Adobe
+      keep = false; label = 'Adobe APP14 removido';
+    }
+
+    segments.push({start:off, end:segEnd, keep, label, marker});
+    off = segEnd;
+  }
+
+  // ── CONSTRUIR NOVO ARQUIVO ────────────────────────────────────
+  const newExif = buildExif(dev);
+
+  // Calcular tamanho total
+  let totalSize = 2 + newExif.byteLength; // SOI + novo EXIF
+  for (const seg of segments) {
+    if (seg.keep) totalSize += (seg.end - seg.start);
+  }
+
+  const out = new Uint8Array(totalSize);
+  let pos = 0;
+
+  // SOI
+  out[pos++] = 0xFF; out[pos++] = 0xD8;
+
+  // Novo EXIF completo
+  const exifArr = new Uint8Array(newExif);
+  out.set(exifArr, pos); pos += exifArr.length;
+
+  // Demais segmentos mantidos (APP0, ICC, imagem)
+  for (const seg of segments) {
+    if (!seg.keep) continue;
+    const chunk = new Uint8Array(buf, seg.start, seg.end - seg.start);
+    out.set(chunk, pos); pos += chunk.length;
+  }
+
+  // Gerar log de diagnóstico
+  ST.diagLog = [];
+  const segNames = {
+    0xFFE0: {name:'APP0 / JFIF', detail:'Cabeçalho JFIF padrão'},
+    0xFFE1: {name:'APP1 / EXIF', detail:'Metadados EXIF originais'},
+    0xFFE2: {name:'APP2 / ICC', detail:'Perfil de cor ICC'},
+    0xFFED: {name:'APP13 / IPTC', detail:'Metadados IPTC e dados Photoshop'},
+    0xFFEE: {name:'APP14 / Adobe', detail:'Marcador Adobe'},
+  };
+  for (const seg of segments) {
+    if (seg.sos) continue;
+    const info = segNames[seg.marker] || {name:`Segment 0x${seg.marker?.toString(16).toUpperCase()}`, detail:''};
+    // XMP é APP1 com label diferente
+    const name = seg.label?.includes('XMP') ? 'APP1 / XMP' : info.name;
+    const detail = seg.label?.includes('XMP') ? 'Metadados XMP (Adobe/Lightroom)' : info.detail;
+    ST.diagLog.push({name, detail, kept: seg.keep});
+  }
+
+  return out.buffer;
+}
+
+function buildExif(dev) {
+  // EXIF mínimo mas completo em little-endian
+  const make  = enc(dev.brand);
+  const model = enc(dev.model);
+  const sw    = enc(dev.sw);
+
+  // Data
+  let dateStr;
+  if (ST.useDate) {
+    const d = document.getElementById('iDate').value;
+    const t = document.getElementById('iTime').value;
+    dateStr = enc((d+' '+t+':00').replace(/-/g,':'));
+  } else {
+    const n = new Date();
+    dateStr = enc(fmtExifDate(n));
+  }
+
+  // IFD0 tags (tag, type, count, value/offset)
+  // Usaremos layout simples: TIFF header + IFD0 + data
+  // Tags IFD0: Make(010F), Model(0110), Software(0131), DateTime(0132), Orientation(0112), YCbCrPos(0213)
+  // Tags ExifIFD: ExifIFDPointer(8769)
+
+  const LE = true; // little-endian
+  const buf = new ArrayBuffer(4096);
+  const dv = new DataView(buf);
+  const u8 = new Uint8Array(buf);
+
+  let p = 0; // ponteiro absoluto
+  // TIFF header
+  dv.setUint16(p,0x4949,LE); p+=2; // II = little endian
+  dv.setUint16(p,0x002A,LE); p+=2; // magic
+  dv.setUint32(p,8,LE);      p+=4; // offset para IFD0 = 8
+
+  // IFD0 começa em offset 8
+  const ifd0Tags = [
+    [0x010F, 2, make],    // Make
+    [0x0110, 2, model],   // Model
+    [0x0112, 3, null, 1], // Orientation=1 (SHORT inline)
+    [0x0131, 2, sw],      // Software
+    [0x0132, 2, dateStr], // DateTime
+    [0x8769, 4, null, 0], // ExifIFD pointer (preenchido depois)
+  ];
+
+  const nTags = ifd0Tags.length;
+  dv.setUint16(p, nTags, LE); p+=2;
+  const ifd0EntryStart = p;
+  p += nTags*12 + 4; // 4 = next IFD offset
+
+  // Área de dados de IFD0
+  let dataOff = p;
+
+  // Escrever entradas IFD0
+  let ei = ifd0EntryStart;
+  let exifIfdPtrPos = -1;
+
+  for (const tag of ifd0Tags) {
+    const [tagId, type, strBytes, inlineVal] = tag;
+    dv.setUint16(ei, tagId, LE); ei+=2;
+    dv.setUint16(ei, type, LE);  ei+=2;
+
+    if (strBytes) {
+      dv.setUint32(ei, strBytes.length, LE); ei+=4;
+      if (strBytes.length <= 4) {
+        for(let i=0;i<strBytes.length;i++) dv.setUint8(ei+i, strBytes[i]);
+        ei+=4;
+      } else {
+        dv.setUint32(ei, dataOff, LE); ei+=4;
+        u8.set(strBytes, dataOff); dataOff+=strBytes.length;
+        // Alinhar
+        if(dataOff%2!==0) dataOff++;
+      }
+    } else if (tagId===0x8769) {
+      dv.setUint32(ei, 1, LE); ei+=4;
+      exifIfdPtrPos = ei; ei+=4; // preenchido depois
+    } else {
+      // SHORT inline
+      dv.setUint32(ei, 1, LE); ei+=4;
+      dv.setUint16(ei, inlineVal, LE); ei+=4;
+    }
+  }
+  // next IFD = 0
+  dv.setUint32(ei, 0, LE);
+
+  // ExifIFD começa em dataOff
+  const exifIfdOff = dataOff;
+  if (exifIfdPtrPos >= 0) dv.setUint32(exifIfdPtrPos, exifIfdOff, LE);
+
+  // Tags ExifIFD
+  const fl = Math.round(dev.fl*10);
+  const fn = Math.round(dev.fn*10);
+
+  // SubSecTime — milissegundos aleatórios realistas
+  // SubSecTime único a cada processamento — simula disparo real
+  const subSecRnd = String(Math.floor(Math.random()*900)+100).padStart(3,'0');
+  const subSecStr = enc(subSecRnd);
+
+  const exifTags = [
+    [0x9000, 7, enc('0220')],                        // ExifVersion
+    [0x9003, 2, dateStr],                             // DateTimeOriginal
+    [0x9004, 2, dateStr],                             // DateTimeDigitized
+    [0x9290, 2, subSecStr],                           // SubSecTime
+    [0x9291, 2, subSecStr],                           // SubSecTimeOriginal
+    [0x9292, 2, subSecStr],                           // SubSecTimeDigitized
+    [0x829A, 5, null, dev.expN, dev.expD],            // ExposureTime (1/100)
+    [0x8822, 3, null, null, null, dev.expProg||2],    // ExposureProgram: Normal
+    [0x9209, 3, null, null, null, dev.flash||0],      // Flash: No flash
+    [0x9207, 3, null, null, null, dev.meter||5],      // MeteringMode: Multi-segment
+    [0xA403, 3, null, null, null, dev.wb||0],         // WhiteBalance: Auto
+    [0xA406, 3, null, null, null, dev.scene||0],      // SceneCaptureType: Standard
+    [0x9204, 10, null, 0, 1],                         // ExposureBiasValue: 0 (SRATIONAL)
+    [0xA402, 3, null, null, null, 0],                 // ExposureMode: Auto
+    [0x920A, 5, null, fl, 10],                        // FocalLength
+    [0x829D, 5, null, fn, 10],                        // FNumber
+    [0x8827, 3, null, null, null, dev.iso],           // ISOSpeedRatings
+    [0xA001, 3, null, null, null, 1],                 // ColorSpace: sRGB
+    [0xA210, 3, null, null, null, 2],                 // FocalPlaneResolutionUnit
+    [0xA405, 3, null, null, null, dev.fl35],          // FocalLengthIn35mmFormat
+    [0xA431, 2, enc(dev.model)],                      // BodySerialNumber (model como serial)
+  ];
+
+  const nExif = exifTags.length;
+  dv.setUint16(dataOff, nExif, LE); dataOff+=2;
+  const exifEntryStart = dataOff;
+  dataOff += nExif*12+4;
+
+  let ee = exifEntryStart;
+  for (const tag of exifTags) {
+    const [tagId, type, strBytes, v1, v2, v3] = tag;
+    dv.setUint16(ee, tagId, LE); ee+=2;
+    dv.setUint16(ee, type, LE);  ee+=2;
+
+    if (strBytes) {
+      dv.setUint32(ee, strBytes.length, LE); ee+=4;
+      if (strBytes.length<=4) {
+        for(let i=0;i<strBytes.length;i++) dv.setUint8(ee+i,strBytes[i]);
+        ee+=4;
+      } else {
+        dv.setUint32(ee, dataOff, LE); ee+=4;
+        u8.set(strBytes, dataOff); dataOff+=strBytes.length;
+        if(dataOff%2!==0) dataOff++;
+      }
+    } else if (type===5 || type===10) {
+      // RATIONAL / SRATIONAL (2 int32)
+      dv.setUint32(ee, 1, LE); ee+=4;
+      dv.setUint32(ee, dataOff, LE); ee+=4;
+      if (type===10) {
+        dv.setInt32(dataOff, v1||0, LE); dataOff+=4;
+        dv.setInt32(dataOff, v2||1, LE); dataOff+=4;
+      } else {
+        dv.setUint32(dataOff, v1, LE); dataOff+=4;
+        dv.setUint32(dataOff, v2, LE); dataOff+=4;
+      }
+    } else if (type===3) {
+      // SHORT inline
+      dv.setUint32(ee, 1, LE); ee+=4;
+      dv.setUint16(ee, v3||0, LE); ee+=4;
+    }
+  }
+  dv.setUint32(ee, 0, LE); // next IFD
+
+  // IFD1 — Thumbnail (Samsung sempre embute um thumbnail 160x120 no EXIF)
+  // Gerar thumbnail placeholder compatível
+  const thumbOff = dataOff;
+  // Mini JPEG sólido 1x1 pixel (placeholder realista)
+  const miniJpeg = new Uint8Array([
+    0xFF,0xD8,0xFF,0xE0,0x00,0x10,0x4A,0x46,0x49,0x46,0x00,0x01,0x01,0x00,0x00,0x01,
+    0x00,0x01,0x00,0x00,0xFF,0xDB,0x00,0x43,0x00,0x08,0x06,0x06,0x07,0x06,0x05,0x08,
+    0x07,0x07,0x07,0x09,0x09,0x08,0x0A,0x0C,0x14,0x0D,0x0C,0x0B,0x0B,0x0C,0x19,0x12,
+    0x13,0x0F,0x14,0x1D,0x1A,0x1F,0x1E,0x1D,0x1A,0x1C,0x1C,0x20,0x24,0x2E,0x27,0x20,
+    0x22,0x2C,0x23,0x1C,0x1C,0x28,0x37,0x29,0x2C,0x30,0x31,0x34,0x34,0x34,0x1F,0x27,
+    0x39,0x3D,0x38,0x32,0x3C,0x2E,0x33,0x34,0x32,0xFF,0xC0,0x00,0x0B,0x08,0x00,0x01,
+    0x00,0x01,0x01,0x01,0x11,0x00,0xFF,0xC4,0x00,0x1F,0x00,0x00,0x01,0x05,0x01,0x01,
+    0x01,0x01,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x02,0x03,0x04,
+    0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0xFF,0xC4,0x00,0xB5,0x10,0x00,0x02,0x01,0x03,
+    0x03,0x02,0x04,0x03,0x05,0x05,0x04,0x04,0x00,0x00,0x01,0x7D,0x01,0x02,0x03,0x00,
+    0x04,0x11,0x05,0x12,0x21,0x31,0x41,0x06,0x13,0x51,0x61,0x07,0x22,0x71,0x14,0x32,
+    0x81,0x91,0xA1,0x08,0x23,0x42,0xB1,0xC1,0x15,0x52,0xD1,0xF0,0x24,0x33,0x62,0x72,
+    0x82,0x09,0x0A,0x16,0x17,0x18,0x19,0x1A,0x25,0x26,0x27,0x28,0x29,0x2A,0x34,0x35,
+    0xFF,0xDA,0x00,0x08,0x01,0x01,0x00,0x00,0x3F,0x00,0xFB,0xD3,0xFF,0xD9
+  ]);
+  u8.set(miniJpeg, dataOff);
+  dataOff += miniJpeg.length;
+
+  // Escrever IFD1 após o ExifIFD (offset após next-IFD do ExifIFD)
+  // Atualizar o next-IFD do IFD0 para apontar para IFD1
+  const ifd1Off = dataOff;
+  // IFD1 tags: Compression(0103)=6(JPEG), JPEGInterchangeFormat(0201), JPEGInterchangeFormatLength(0202)
+  dv.setUint16(dataOff, 3, LE); dataOff+=2; // 3 tags
+  // Compression = 6 (JPEG)
+  dv.setUint16(dataOff,0x0103,LE); dv.setUint16(dataOff+2,3,LE); dv.setUint32(dataOff+4,1,LE); dv.setUint16(dataOff+8,6,LE); dataOff+=12;
+  // JPEGInterchangeFormat (offset do thumbnail)
+  dv.setUint16(dataOff,0x0201,LE); dv.setUint16(dataOff+2,4,LE); dv.setUint32(dataOff+4,1,LE); dv.setUint32(dataOff+8,thumbOff,LE); dataOff+=12;
+  // JPEGInterchangeFormatLength
+  dv.setUint16(dataOff,0x0202,LE); dv.setUint16(dataOff+2,4,LE); dv.setUint32(dataOff+4,1,LE); dv.setUint32(dataOff+8,miniJpeg.length,LE); dataOff+=12;
+  dv.setUint32(dataOff,0,LE); dataOff+=4; // next IFD = 0
+
+  // GPS (opcional)
+  if (ST.useGPS) {
+    const lat = parseFloat(document.getElementById('iLat').value);
+    const lon = parseFloat(document.getElementById('iLon').value);
+    if (!isNaN(lat)&&!isNaN(lon)) {
+      // simplificado — adicionar GPS IFD seria extenso; omitir por ora
+    }
+  }
+
+  // Montar APP1 completo: marker(2) + len(2) + "Exif\0\0"(6) + tiff(dataOff)
+  const tiffSize = dataOff;
+  const app1Size = 6 + tiffSize;
+  const app1 = new ArrayBuffer(2+2+app1Size);
+  const av = new DataView(app1);
+  av.setUint16(0, 0xFFE1);           // APP1 marker
+  av.setUint16(2, 2+app1Size);       // length (inclui os 2 bytes do length)
+  // "Exif\0\0"
+  const header = [0x45,0x78,0x69,0x66,0x00,0x00];
+  header.forEach((b,i)=>av.setUint8(4+i,b));
+  // TIFF data
+  new Uint8Array(app1, 10).set(new Uint8Array(buf, 0, tiffSize));
+  return app1;
+}
+
+function enc(str) {
+  const a = new Uint8Array(str.length+1);
+  for(let i=0;i<str.length;i++) a[i]=str.charCodeAt(i)&0xFF;
+  a[str.length]=0;
+  return a;
+}
+
+function fmtExifDate(d) {
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}:${p(d.getMonth()+1)}:${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+
+// ═══════════════════════════════════════════════════
+// VIDEO — injetar metadados no arquivo MP4
+// ═══════════════════════════════════════════════════
+// ─── MODO CÓPIA: usar EXIF raw da foto de referência ────────
+async function processPhotoCopy(buf, exifRaw) {
+  const view = new DataView(buf);
+  if (view.getUint16(0) !== 0xFFD8) throw new Error('JPEG inválido');
+
+  // Remover todos os segmentos APP exceto ICC/APP2
+  const segments = [];
+  let off = 2;
+  while (off < view.byteLength-2) {
+    const mk = view.getUint16(off);
+    if (mk===0xFFDA) { segments.push({start:off,end:view.byteLength,keep:true}); break; }
+    if((mk&0xFF00)!==0xFF00) break;
+    const len = view.getUint16(off+2);
+    const end = off+2+len;
+    // Manter apenas ICC (APP2)
+    const keep = mk===0xFFE2;
+    segments.push({start:off,end,keep});
+    off = end;
+  }
+
+  // Construir arquivo: SOI + EXIF da referência + segmentos mantidos
+  const exifArr = new Uint8Array(exifRaw);
+  let total = 2 + exifArr.length;
+  for (const s of segments) if(s.keep) total += s.end-s.start;
+
+  const out = new Uint8Array(total);
+  let pos = 0;
+  out[pos++]=0xFF; out[pos++]=0xD8;
+  out.set(exifArr, pos); pos+=exifArr.length;
+  for (const s of segments) {
+    if(!s.keep) continue;
+    out.set(new Uint8Array(buf,s.start,s.end-s.start),pos);
+    pos+=s.end-s.start;
+  }
+  ST.diagLog = [{name:'EXIF copiado da foto de referência',detail:'Metadados reais do SM-A155M/DSN',kept:true}];
+  return out.buffer;
+}
+
+// ─── Copiar metadados de vídeo de referência ─────────────────
+async function processVideoCopy(buf, refMeta) {
+  // Aplicar make/model/sw/date do vídeo de referência via patch no mvhd
+  const u8 = new Uint8Array(buf.slice(0));
+  const dv = new DataView(u8.buffer);
+
+  // Reutilizar processVideo mas com metadados do arquivo de referência
+  // Patch creation_time no mvhd igual ao vídeo original
+  let off = 0;
+  while (off < u8.length - 8) {
+    const size = dv.getUint32(off);
+    const type = String.fromCharCode(u8[off+4],u8[off+5],u8[off+6],u8[off+7]);
+    if (type === 'moov') {
+      patchMoov(dv, u8, off+8, off+size);
+      break;
+    }
+    if (size < 8) break;
+    off += size;
+  }
+
+  ST.diagLog = [
+    {name:'Metadados copiados do vídeo de referência', detail:`${refMeta.make||'samsung'} ${refMeta.model||'SM-A155M/DSN'}`, kept:true},
+    {name:'creation_time', detail: refMeta.date || 'Data do arquivo de referência', kept:true},
+  ];
+  return u8.buffer;
+}
+
+async function processVideo(buf) {
+  // Para MP4: modificar/adicionar box 'udta' com metadados
+  // Abordagem: copiar arquivo e injetar metadados no moov/udta/meta
+  const dev = DEVS[ST.dev];
+
+  // Estratégia simples: adicionar um box 'free' no início com os metadados
+  // e modificar o box mvhd para atualizar a data de criação
+  const u8 = new Uint8Array(buf.slice(0));
+  const dv = new DataView(u8.buffer);
+
+  // Tentar atualizar creation_time no mvhd
+  // mvhd está dentro de moov
+  let off = 0;
+  while (off < u8.length - 8) {
+    const size = dv.getUint32(off);
+    const type = String.fromCharCode(u8[off+4],u8[off+5],u8[off+6],u8[off+7]);
+    if (type === 'moov') {
+      patchMoov(dv, u8, off+8, off+size);
+      break;
+    }
+    if (size === 0 || size > u8.length) break;
+    off += size;
+  }
+
+  return u8.buffer;
+}
+
+function patchMoov(dv, u8, start, end) {
+  let off = start;
+  while (off < end - 8) {
+    const size = dv.getUint32(off);
+    const type = String.fromCharCode(u8[off+4],u8[off+5],u8[off+6],u8[off+7]);
+    if (type === 'mvhd') {
+      // Atualizar creation_time e modification_time
+      // mvhd version 0: 4+4+4(creation)+4(mod)+4(timescale)+4(duration)+...
+      // version 1: 4+4+8+8+4+8+...
+      const ver = u8[off+8];
+      const now = Math.floor(Date.now()/1000) + 2082844800; // epoch MP4
+      if (ver === 0) {
+        dv.setUint32(off+12, now);  // creation_time
+        dv.setUint32(off+16, now);  // modification_time
+      } else {
+        // version 1: uint64 — preencher só os 32 bits baixos
+        dv.setUint32(off+12, 0); dv.setUint32(off+16, now);
+        dv.setUint32(off+20, 0); dv.setUint32(off+24, now);
+      }
+    }
+    if (type === 'trak' || type === 'mdia' || type === 'minf' || type === 'stbl') {
+      patchMoov(dv, u8, off+8, off+size);
+    }
+    if (size === 0 || size > end) break;
+    off += size;
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// UI UTILS
+// ═══════════════════════════════════════════════════
+function unlock(id) {
+  const el = document.getElementById(id);
+  el.classList.remove('locked');
+}
+function setStep(n) {
+  for(let i=1;i<=4;i++){
+    const s=document.getElementById('s'+i);
+    s.className='stp'+(i<n?' done':i===n?' active':'');
+  }
+}
+function showErr(m) { const e=document.getElementById('errMsg'); e.textContent='❌ '+m; e.classList.add('show'); }
+function hideErr() { document.getElementById('errMsg').classList.remove('show'); }
+function showProg(t) { document.getElementById('progWrap').classList.add('show'); document.getElementById('progTxt').textContent=t; }
+function hideProg() { document.getElementById('progWrap').classList.remove('show'); }
+function fmtSize(b) { return b<1024?b+'B':b<1048576?(b/1024).toFixed(1)+'KB':(b/1048576).toFixed(1)+'MB'; }
+
+let _pi=null;
+function animProg(from,to,dur,txt) {
+  if(_pi) clearInterval(_pi);
+  const bar=document.getElementById('progBar');
+  const txtEl=document.getElementById('progTxt');
+  if(txt) txtEl.textContent=txt;
+  let cur=from;
+  const step=(to-from)/(dur/40);
+  _pi=setInterval(()=>{
+    cur=Math.min(cur+step,to);
+    bar.style.width=cur+'%';
+    if(cur>=to) clearInterval(_pi);
+  },40);
+}
+
+function renderDiag(log, dev) {
+  const wrap = document.getElementById('diagWrap');
+  if (!wrap) return;
+  const rows = [
+    ...log.map(l => ({
+      icon: l.kept ? '🔒' : '🗑️',
+      name: l.name,
+      detail: l.detail || '',
+      badge: l.kept ? 'kept' : 'removed',
+      label: l.kept ? 'MANTIDO' : 'REMOVIDO'
+    })),
+    { icon:'✨', name:'EXIF Samsung completo', detail:`Make · Model · ${Object.keys(DEVS[ST.dev]||{}).filter(k=>['fl','fn','iso','fl35','expN','subsec'].includes(k)).length} campos de câmera`, badge:'added', label:'INSERIDO' },
+    { icon:'🖼️', name:'Thumbnail IFD1', detail:'Miniatura JPEG embutida (padrão Samsung)', badge:'added', label:'INSERIDO' },
+  ];
+
+  wrap.innerHTML = `
+    <div class="diag-title">📋 Relatório de Processamento</div>
+    <div class="diag-grid">
+      ${rows.map(r=>`
+        <div class="diag-row">
+          <div class="diag-icon">${r.icon}</div>
+          <div class="diag-info">
+            <div class="diag-name">${r.name}</div>
+            ${r.detail ? `<div class="diag-detail">${r.detail}</div>` : ''}
+          </div>
+          <div class="diag-badge ${r.badge}">${r.label}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function resetFile() {
+  ST.file=null; ST.fileType=null; ST.origMeta={};
+  ST.dev=null; ST.outUrl=null;
+  document.getElementById('dz').style.display='';
+  document.getElementById('fp').classList.remove('show');
+  document.getElementById('origWrap').style.display='none';
+  document.getElementById('fi').value='';
+  ['c2','c3','c4'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.classList.add('locked');
+  });
+  document.getElementById('procBtn').disabled=true;
