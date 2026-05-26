@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="MetaForge">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<title>MetaForge</title>
+<title>MetaForge</title>h
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
@@ -1859,8 +1859,7 @@ async function runTiktokAnalysis(file) {
     // Tamanho
     max+=0; // bônus
     if (sizeMB<=287) checks.push({status:'ok',icon:'✅',name:'Tamanho',detail:`<strong>${sizeMB} MB</strong> — dentro do limite de 287 MB`});
-    else checks.push({status:'fail',icon:'❌',name:'Tamanho',detail:`<strong>${sizeMB} MB</strong> — acima do limite`,tip:'Comprima antes de enviar.'});
-
+setMode = function(mode) {
     const score = max>0?Math.round((total/max)*100):0;
     renderAnalysis(checks, score, true);
 
@@ -1886,7 +1885,7 @@ async function runTiktokAnalysis(file) {
 
 // Integrar setMode com nova aba
 const _origSetMode = setMode;
-function setMode(mode) {
+setMode = function(mode) {
   // Esconder aba otimizar
   const cardOpt = document.getElementById('cardOptimize');
   if (cardOpt) cardOpt.style.display = 'none';
@@ -1951,7 +1950,7 @@ function forcarAtualizacao() {
   }
 }
 
-console.log('%c MetaForge v2.2 ', 'background:#6c63ff;color:white;font-weight:bold;border-radius:4px;padding:2px 8px');
+console.log('%c MetaForge v3.0 ', 'background:#6c63ff;color:white;font-weight:bold;border-radius:4px;padding:2px 8px');
 
 // ═══════════════════════════════════════════════════
 // RENDER DEVICES
@@ -1996,10 +1995,21 @@ function selectDev(k) {
 // ═══════════════════════════════════════════════════
 // FILE HANDLING
 // ═══════════════════════════════════════════════════
-document.getElementById('fi').addEventListener('change', e => handleFile(e.target.files[0]));
+document.getElementById('fi').addEventListener('change', e => {
+  if (typeof SERVER_MODE !== 'undefined' && SERVER_MODE) return;
+  handleFile(e.target.files[0]);
+});
 document.getElementById('dz').addEventListener('dragover', e => { e.preventDefault(); document.getElementById('dz').classList.add('over'); });
 document.getElementById('dz').addEventListener('dragleave', () => document.getElementById('dz').classList.remove('over'));
-document.getElementById('dz').addEventListener('drop', e => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); });
+document.getElementById('dz').addEventListener('drop', e => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (typeof SERVER_MODE !== 'undefined' && SERVER_MODE) {
+    serverUpload(file);
+  } else {
+    handleFile(file);
+  }
+});
 
 function handleFile(file) {
   if (!file) return;
